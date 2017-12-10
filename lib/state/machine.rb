@@ -1,15 +1,32 @@
 require 'state/machine/version'
 require 'state/required_actions'
+require 'state/support/action_loader'
+require 'logger'
 
-# def path_to_resources
-#   File.join(File.dirname(File.expand_path(__FILE__)), 'actions')
-# end
-#
-# puts path_to_resources
 
 module State
+
   module Machine
-    # Your code goes here...
-    puts('Hello World')
+
+    logger = Logger.new('logfile.log')
+    logger.level = Logger::DEBUG
+    original_formatter = Logger::Formatter.new
+    logger.formatter = proc { |datetime, severity, progname, msg|
+      original_formatter.call(datetime, severity, progname, msg.dump)
+    }
+
+    logger.info('Starting State Machine')
+
+    extend ActionLoader
+    actions = {}
+    load_default_actions(actions)
+    load_user_actions(actions, '/Users/atkinsb/RubymineProjects/state-machine/user_actions')
+
+    @phase = 'STARTUP'
+    actions.each do |flag, action|
+      action.execute(@phase)
+    end
+
+    logger.close
   end
 end

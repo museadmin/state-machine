@@ -11,4 +11,4 @@ require "state/machine"
 # Pry.start
 
 require "irb"
-IRB.start
+# IRB.start

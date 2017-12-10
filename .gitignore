@@ -8,4 +8,5 @@
 /spec/reports/
 /tmp/
 .idea/
+*.log
 state-machine-*.gem
