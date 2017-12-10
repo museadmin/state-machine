@@ -10,9 +10,14 @@ class StateMachine
   include Support
   include ActionLoader
 
-  def initialize
+  attr_accessor :user_actions
+  attr_reader :number_of_actions
+
+  def initialize(user_actions = nil)
     @actions = {}
     @phase = 'STARTUP'
+    @user_actions = user_actions
+    @number_of_actions = 0
 
     @logger = set_logger
     @logger.info('Starting State Machine')
@@ -20,7 +25,8 @@ class StateMachine
 
   def load_actions
     load_default_actions(@actions)
-    load_user_actions(@actions, '/Users/atkinsb/RubymineProjects/state-machine/user_actions')
+    load_user_actions(@actions, @user_actions)
+    @number_of_actions = @actions.size
   end
 
   def execute
