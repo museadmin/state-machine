@@ -1,12 +1,12 @@
 
-class ConfirmReadyToRun
+class UserAction
 
   attr_accessor :flag, :phase, :state, :payload
 
   def initialize
-    @flag = 'CONFIRM_READY_TO_RUN'
+    @flag = 'SAMPLE_USER_ACTION'
     @phase = 'STARTUP'
-    @state = 'ACT'
+    @state = 'SKIP'
     @payload = nil
   end
 
@@ -14,6 +14,8 @@ class ConfirmReadyToRun
 
     if args[:phase] == phase && @state == 'ACT'
       puts @flag
+      File.write('/tmp/UserAction', :SAMPLE_USER_ACTION)
+      args[:control][:breakout] = true
     end
 
   end
