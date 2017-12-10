@@ -1,32 +1,34 @@
 require 'state/machine/version'
 require 'state/required_actions'
 require 'state/support/action_loader'
+require 'state/support/support'
+
 require 'logger'
 
+class StateMachine
 
-module State
+  include Support
+  include ActionLoader
 
-  module Machine
-
-    logger = Logger.new('logfile.log')
-    logger.level = Logger::DEBUG
-    original_formatter = Logger::Formatter.new
-    logger.formatter = proc { |datetime, severity, progname, msg|
-      original_formatter.call(datetime, severity, progname, msg.dump)
-    }
-
-    logger.info('Starting State Machine')
-
-    extend ActionLoader
-    actions = {}
-    load_default_actions(actions)
-    load_user_actions(actions, '/Users/atkinsb/RubymineProjects/state-machine/user_actions')
-
+  def initialize
+    @actions = {}
     @phase = 'STARTUP'
-    actions.each do |flag, action|
+
+    @logger = set_logger
+    @logger.info('Starting State Machine')
+  end
+
+  def load_actions
+    load_default_actions(@actions)
+    load_user_actions(@actions, '/Users/atkinsb/RubymineProjects/state-machine/user_actions')
+  end
+
+  def execute
+    @actions.each do |flag, action|
       action.execute(@phase)
     end
-
-    logger.close
   end
+
 end
+
+
