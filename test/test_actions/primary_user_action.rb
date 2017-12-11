@@ -1,21 +1,23 @@
+require 'state/actions/action'
 
-class PrimaryUserAction
+class PrimaryUserAction < Action
 
   attr_accessor :flag, :phase, :state, :payload
 
-  def initialize
+  def initialize(control)
     @flag = 'PRIMARY_USER_ACTION'
     @phase = 'STARTUP'
     @state = 'ACT'
-    @payload = nil
+    @payload = 'NULL'
+    save_action(self, control)
   end
 
-  def execute(args)
+  def execute(control)
 
-    if args[:phase] == phase && @state == 'ACT'
+    if control[:phase] == @phase && @state == 'ACT'
       puts @flag
       File.write('/tmp/UserAction', :SAMPLE_USER_ACTION)
-      args[:actions]['SAMPLE_USER_ACTION'].state = 'ACT'
+      control[:actions]['SAMPLE_USER_ACTION'].state = 'ACT'
     end
 
   end

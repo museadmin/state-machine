@@ -1,20 +1,25 @@
+require 'state/actions/action'
 
-class ConfirmReadyToRun
+class ConfirmReadyToRun < Action
 
   attr_accessor :flag, :phase, :state, :payload
 
-  def initialize
+  def initialize(control)
     @flag = 'CONFIRM_READY_TO_RUN'
     @phase = 'STARTUP'
     @state = 'ACT'
-    @payload = nil
+    @payload = 'NULL'
+    save_action(self, control)
   end
 
-  def execute(args)
+  def execute(control)
 
-    if args[:phase] == phase && @state == 'ACT'
+    if control[:phase] == @phase && @state == 'ACT'
       puts @flag
     end
+
+    @state = 'SKIP'
+    update_action(self, control)
 
   end
 

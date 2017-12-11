@@ -1,50 +1,84 @@
 require 'state/machine/version'
 require 'state/required_actions'
 require 'state/support/action_loader'
-require 'state/support/support'
+require 'state/support/action_support'
+require 'state/support/data_access_sqlite3'
 
 require 'logger'
 
 class StateMachine
 
-  include Support
+  include ActionSupport
   include ActionLoader
-
-  attr_accessor :user_actions
-  attr_reader :number_of_actions, :log
+  include DataAccessSqlite3
 
   # Constructor
   # @param args Argument Hash
   def initialize(args = {})
-    @actions = {}
-    @phase = 'STARTUP'
-    @user_actions = args[:user_actions]
-    @number_of_actions = 0
+
     @control = {
-        :breakout => false
+        breakout: false,
+        phase: 'STARTUP',
+        actions: {},
+        user_actions_dir: args[:user_actions_dir],
+        number_of_actions: 0,
+        log: args[:log],
+        sqlite3_db: args[:sqlite3_db]
     }
 
-    @log = args[:log]
-    @logger = set_logger(Logger::DEBUG, @log)
+    @logger = set_logger(Logger::DEBUG, @control[:log])
     @logger.info('Starting State Machine')
+  end
+
+  # Create the control database
+  def create_db
+    raise('Path to database must be set via sqlite3_db=(sqlite3_db) or constructor') if
+        @control[:sqlite3_db].nil?
+    delete_db(@control)
+    create_tables(@control)
   end
 
   # Load the default and user actions if existing
   def load_actions
-    load_default_actions(@actions)
-    load_user_actions(@actions, @user_actions) unless @user_actions.nil?
-    @number_of_actions = @actions.size
+    load_default_actions(@control)
+    load_user_actions(@control) unless @control[:user_actions_dir].nil?
+    @control[:number_of_actions] = @control[:actions].size
   end
 
   # Main state machine loop
   def execute
     loop do
-      @actions.each do |flag, action|
-        action.execute({phase: @phase, actions: @actions, control: @control})
+      @control[:actions].each do |flag, action|
+        action.execute(@control)
         break if @control[:breakout]
       end
       break if @control[:breakout]
     end
+  end
+
+  def user_actions_dir
+    @control[:user_actions_dir]
+  end
+
+  def user_actions_dir=(path)
+    @control[:user_actions_dir] = path
+  end
+
+  def number_of_actions
+    @control[:number_of_actions]
+  end
+
+  def log
+    @control[:log]
+  end
+
+  def sqlite3_db
+    @control[:sqlite3_db]
+  end
+
+  def sqlite3_db=(sqlite3_db)
+    @control[:sqlite3_db] = sqlite3_db
+    create_db
   end
 
 end

@@ -1,5 +1,5 @@
 
-module Support
+module ActionSupport
 
   def set_logger(log_level = Logger::DEBUG, log = '/tmp/logfile.log')
     logger = Logger.new(log)

@@ -1,0 +1,27 @@
+--------------------------
+Geminabox
+--------------------------
+Runs on:
+
+http://localhost:9292
+
+Push to server:
+gem inabox pkg/state-machine-0.1.2.gem
+
+--------------------------
+Rake
+--------------------------
+Local install, and build to /pkg:
+bundle exec rake install
+
+Release to Ruby Gems:
+bundle exec rake release
+
+--------------------------
+
+--------------------------
+
+--------------------------
+--------------------------
+
+
