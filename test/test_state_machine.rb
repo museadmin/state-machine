@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'state/machine'
 
-USER_ACTIONS = './test_actions'
+USER_ACTIONS = './test/test_actions'
 OTHER_ACTIONS = '/some/path'
 TMP_FILE = '/tmp/UserAction'
 ACTION_STATEMENT = 'SAMPLE_USER_ACTION'
