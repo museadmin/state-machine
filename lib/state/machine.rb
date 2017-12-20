@@ -12,31 +12,45 @@ class StateMachine
   include ActionLoader
   include DataAccessSqlite3
 
-  # Constructor
+  # Constructor for State Machine
   # @param args Argument Hash
   def initialize(args = {})
 
     args[:run_state] = 'NORMAL' if args[:run_state].nil?
 
     @control = {
-        run_state: args[:run_state],
-        breakout: false,
-        phase: 'STARTUP',
-        actions: {},
-        user_actions_dir: args[:user_actions_dir],
-        number_of_actions: 0,
-        log: args[:log],
-        sqlite3_db: args[:sqlite3_db]
+      # Statemachine control
+      run_state: args.fetch(:run_state) { 'NORMAL' },
+      breakout: false,
+      actions: {},
+      number_of_actions: 0,
+      user_actions_dir: args[:user_actions_dir],
+      phase: 'STARTUP',
+      #Logging
+      log: args[:log],
+      log_level: args.fetch(:log_level) { Logger::DEBUG },
+      # Control DB
+      sqlite3_db: args[:sqlite3_db],
+      # The run directories
+      run_root: args.fetch(:run_root) { "#{Dir.home}/state_machine_root" },
+      user_tag: args.fetch(:run_root) { "default" },
+      run_tag: Time.now.to_f,
+      run_dir: nil
     }
 
-    @logger = set_logger(Logger::DEBUG, @control[:log])
+    create_run_dirs
+    create_db
+
+    @control[:log] = "#{@control[:run_dir]}/log/run.log" if @control[:log].nil?
+    @logger = set_logger(@control[:log_level], @control[:log])
     @logger.info('Starting State Machine')
+
+
   end
 
   # Create the control database
   def create_db
-    raise('Path to database must be set via sqlite3_db=(sqlite3_db) or constructor') if
-        @control[:sqlite3_db].nil?
+    raise 'Unable to determine run data directory' if @control[:sqlite3_db].nil?
     delete_db(@control)
     create_tables(@control)
   end
@@ -77,10 +91,24 @@ class StateMachine
   def sqlite3_db
     @control[:sqlite3_db]
   end
+  
+  def run_root
+    @control[:run_root]
+  end
+  
+  def run_root=(path)
+    @control[:run_root] = path
+  end
+  
+  def create_run_dirs
+    @control[:run_dir] = Pathname.new("#{@control[:run_root]}/#{@control[:user_tag]}/#{@control[:run_tag]}")
+    FileUtils.mkdir_p(@control[:run_dir])
+    FileUtils.mkdir("#{@control[:run_dir]}/data")
+    FileUtils.mkdir("#{@control[:run_dir]}/log")
+    FileUtils.chmod_R('u=wrx,go=r', @control[:run_dir])
 
-  def sqlite3_db=(sqlite3_db)
-    @control[:sqlite3_db] = sqlite3_db
-    create_db
+    @control[:sqlite3_db] = "#{@control[:run_dir]}/data/state-machine.db"
+
   end
 
 end

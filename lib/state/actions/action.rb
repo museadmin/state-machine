@@ -4,10 +4,6 @@ class Action
 
   include DataAccessSqlite3
 
-  def initialize(control)
-
-  end
-
   def save_state(action, control)
     execute_sql_statement(
       "insert into state_machine "\

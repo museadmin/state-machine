@@ -6,6 +6,7 @@ class PrimaryUserAction < Action
 
   def initialize(control)
     @flag = 'PRIMARY_USER_ACTION'
+
     if control[:run_state] == 'NORMAL'
       @phase = 'STARTUP'
       @state = 'ACT'
@@ -14,14 +15,15 @@ class PrimaryUserAction < Action
     elsif
       recover_state(self, control)
     end
+
   end
 
   def execute(control)
 
     if control[:phase] == @phase && @state == 'ACT'
       puts @flag
-      File.write('/tmp/UserAction', :SAMPLE_USER_ACTION)
-      control[:actions]['SAMPLE_USER_ACTION'].state = 'ACT'
+      File.write('/tmp/UserAction', :SECONDARY_USER_ACTION)
+      control[:actions]['SECONDARY_USER_ACTION'].state = 'ACT'
     end
 
   end
