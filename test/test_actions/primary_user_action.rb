@@ -6,10 +6,14 @@ class PrimaryUserAction < Action
 
   def initialize(control)
     @flag = 'PRIMARY_USER_ACTION'
-    @phase = 'STARTUP'
-    @state = 'ACT'
-    @payload = 'NULL'
-    save_action(self, control)
+    if control[:run_state] == 'NORMAL'
+      @phase = 'STARTUP'
+      @state = 'ACT'
+      @payload = 'NULL'
+      save_state(self, control)
+    elsif
+      recover_state(self, control)
+    end
   end
 
   def execute(control)

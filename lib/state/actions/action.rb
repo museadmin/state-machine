@@ -4,8 +4,11 @@ class Action
 
   include DataAccessSqlite3
 
-  # Add a record to the control DB for this child action
-  def save_action(action, control)
+  def initialize(control)
+
+  end
+
+  def save_state(action, control)
     execute_sql_statement(
       "insert into state_machine "\
       "(flag, phase, payload, state)"\
@@ -24,6 +27,19 @@ class Action
     )
   end
 
-  # TODO recover_state()
+  def recover_state(action, control)
+    rows = execute_sql_query(
+      "select phase, payload, state from state_machine where flag = '#{action.flag}'",
+      control
+    )
+
+    raise("Database corruption? More than one record found for action (#{action.flag})") if
+        rows.size > 1
+
+    action.phase = rows.split(',')[0]
+    action.payload = rows.split(',')[1]
+    action.state = rows.split(',')[2]
+
+  end
 
 end

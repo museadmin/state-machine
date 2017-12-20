@@ -6,21 +6,27 @@ class ConfirmReadyToRun < Action
 
   def initialize(control)
     @flag = 'CONFIRM_READY_TO_RUN'
-    @phase = 'STARTUP'
-    @state = 'ACT'
-    @payload = 'NULL'
-    save_action(self, control)
+    if control[:run_state] == 'NORMAL'
+      @phase = 'STARTUP'
+      @state = 'ACT'
+      @payload = 'NULL'
+      save_state(self, control)
+    elsif
+      recover_state(self, control)
+    end
   end
 
   def execute(control)
 
     if control[:phase] == @phase && @state == 'ACT'
+      # Action Code Here
       puts @flag
+      
+      @state = 'SKIP'
     end
 
-    @state = 'SKIP'
+  ensure
     update_action(self, control)
-
   end
 
 end

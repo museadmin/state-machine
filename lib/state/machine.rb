@@ -16,7 +16,10 @@ class StateMachine
   # @param args Argument Hash
   def initialize(args = {})
 
+    args[:run_state] = 'NORMAL' if args[:run_state].nil?
+
     @control = {
+        run_state: args[:run_state],
         breakout: false,
         phase: 'STARTUP',
         actions: {},
@@ -47,12 +50,11 @@ class StateMachine
 
   # Main state machine loop
   def execute
-    loop do
-      @control[:actions].each do |flag, action|
+    until @control[:breakout] do
+      @control[:actions].each_value do |action|
         action.execute(@control)
         break if @control[:breakout]
       end
-      break if @control[:breakout]
     end
   end
 
