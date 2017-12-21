@@ -4,11 +4,11 @@ class Action
 
   include DataAccessSqlite3
 
-  def save_state(action, control)
+  def save_action(action, control)
     execute_sql_statement(
-      "insert into state_machine "\
-      "(flag, phase, payload, state)"\
-      "values"\
+      "insert into state_machine \n" +
+      "(flag, phase, payload, state)\n" +
+      "values\n" +
       "('#{action.flag}', '#{action.phase}', '#{action.payload}', '#{action.state}');",
       control
     )
@@ -16,14 +16,14 @@ class Action
 
   def update_action(action, control)
     execute_sql_statement(
-    "update state_machine set "\
-    "phase = '#{action.phase}', payload = '#{action.payload}', state = '#{action.state}' "\
+    "update state_machine set \n" +
+    "phase = '#{action.phase}', payload = '#{action.payload}', state = '#{action.state}' \n" +
     "where flag = '#{action.flag}';",
         control
     )
   end
 
-  def recover_state(action, control)
+  def recover_action(action, control)
     rows = execute_sql_query(
       "select phase, payload, state from state_machine where flag = '#{action.flag}'",
       control

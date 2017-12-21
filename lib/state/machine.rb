@@ -19,14 +19,14 @@ class StateMachine
     args[:run_state] = 'NORMAL' if args[:run_state].nil?
 
     @control = {
-      # Statemachine control
+      # State machine control
       run_state: args.fetch(:run_state) { 'NORMAL' },
       breakout: false,
       actions: {},
       number_of_actions: 0,
       user_actions_dir: args[:user_actions_dir],
       phase: 'STARTUP',
-      #Logging
+      # Logging
       log: args[:log],
       log_level: args.fetch(:log_level) { Logger::DEBUG },
       # Control DB
@@ -38,13 +38,14 @@ class StateMachine
       run_dir: nil
     }
 
+    # Create the runtime environment
     create_run_dirs
     create_db
 
+    # Setup the logger
     @control[:log] = "#{@control[:run_dir]}/log/run.log" if @control[:log].nil?
     @logger = set_logger(@control[:log_level], @control[:log])
     @logger.info('Starting State Machine')
-
 
   end
 
@@ -53,6 +54,7 @@ class StateMachine
     raise 'Unable to determine run data directory' if @control[:sqlite3_db].nil?
     delete_db(@control)
     create_tables(@control)
+    insert_standing_data(@control)
   end
 
   # Load the default and user actions if existing
@@ -60,6 +62,7 @@ class StateMachine
     load_default_actions(@control)
     load_user_actions(@control) unless @control[:user_actions_dir].nil?
     @control[:number_of_actions] = @control[:actions].size
+    update_state('ACTIONS_LOADED', 1, @control)
   end
 
   # Main state machine loop

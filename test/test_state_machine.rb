@@ -65,14 +65,5 @@ class StateMachineTest < Minitest::Test
 
   end
 
-  def test_run_directory
-    sm = StateMachine.new(
-        {
-            user_actions_dir: USER_ACTIONS_DIR,
-            log: TEST_LOG
-        }
-    )
-
-  end
 
 end

@@ -5,21 +5,24 @@ class ConfirmReadyToRun < Action
   attr_accessor :flag, :phase, :state, :payload
 
   def initialize(control)
+
     @flag = 'CONFIRM_READY_TO_RUN'
+
     if control[:run_state] == 'NORMAL'
       @phase = 'STARTUP'
       @state = 'ACT'
       @payload = 'NULL'
-      save_state(self, control)
+      save_action(self, control)
     elsif
-      recover_state(self, control)
+      recover_action(self, control)
     end
+
   end
 
   def execute(control)
 
     if control[:phase] == @phase && @state == 'ACT'
-      # Action Code Here
+      # Check the state flags that indicate we're ready to run
       puts @flag
       
       @state = 'SKIP'

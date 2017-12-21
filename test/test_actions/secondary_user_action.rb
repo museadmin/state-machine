@@ -10,9 +10,9 @@ class SecondaryUserAction < Action
       @phase = 'STARTUP'
       @state = 'SKIP'
       @payload = 'NULL'
-      save_state(self, control)
+      save_action(self, control)
     elsif
-      recover_state(self, control)
+      recover_action(self, control)
     end
   end
 
