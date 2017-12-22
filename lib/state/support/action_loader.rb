@@ -1,13 +1,15 @@
-require 'state/actions/confirm_ready_to_run'
+require 'state/actions/action_confirm_ready_to_run'
 require 'facets'
 
 
 module ActionLoader
 
+  # Default actions are hard coded here
   def load_default_actions(control)
-    control[:actions]['CONFIRM_READY_TO_RUN'] = ConfirmReadyToRun.new(control)
+    control[:actions]['CONFIRM_READY_TO_RUN'] = ActionConfirmReadyToRun.new(control)
   end
 
+  # User actions are loaded dynamically from a directory
   def load_user_actions(control)
 
     Dir["#{control[:user_actions_dir]}/*.rb"].each do |file|

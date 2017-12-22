@@ -2,6 +2,7 @@ require 'state/machine/version'
 require 'state/required_actions'
 require 'state/support/action_loader'
 require 'state/support/action_support'
+require 'state/support/standing_data'
 require 'state/support/data_access_sqlite3'
 
 require 'logger'
@@ -11,6 +12,10 @@ class StateMachine
   include ActionSupport
   include ActionLoader
   include DataAccessSqlite3
+
+  # TODO Convert to use a gem as well as a directory of classes
+  # needs creating another gem first...
+  # then refactor load actions
 
   # Constructor for State Machine
   # @param args Argument Hash
@@ -26,11 +31,13 @@ class StateMachine
       number_of_actions: 0,
       user_actions_dir: args[:user_actions_dir],
       phase: 'STARTUP',
+
       # Logging
-      log: args[:log],
       log_level: args.fetch(:log_level) { Logger::DEBUG },
+
       # Control DB
       sqlite3_db: args[:sqlite3_db],
+
       # The run directories
       run_root: args.fetch(:run_root) { "#{Dir.home}/state_machine_root" },
       user_tag: args.fetch(:run_root) { "default" },
@@ -43,26 +50,10 @@ class StateMachine
     create_db
 
     # Setup the logger
-    @control[:log] = "#{@control[:run_dir]}/log/run.log" if @control[:log].nil?
+    @control[:log] = "#{@control[:run_dir]}/log/run.log"
     @logger = set_logger(@control[:log_level], @control[:log])
     @logger.info('Starting State Machine')
 
-  end
-
-  # Create the control database
-  def create_db
-    raise 'Unable to determine run data directory' if @control[:sqlite3_db].nil?
-    delete_db(@control)
-    create_tables(@control)
-    insert_standing_data(@control)
-  end
-
-  # Load the default and user actions if existing
-  def load_actions
-    load_default_actions(@control)
-    load_user_actions(@control) unless @control[:user_actions_dir].nil?
-    @control[:number_of_actions] = @control[:actions].size
-    update_state('ACTIONS_LOADED', 1, @control)
   end
 
   # Main state machine loop
@@ -75,6 +66,22 @@ class StateMachine
     end
   end
 
+  # Create the control database
+  def create_db
+    raise 'Unable to determine run data directory' if @control[:sqlite3_db].nil?
+    delete_db(@control)
+    create_tables(@control)
+    insert_states(default_states, @control)
+  end
+
+  # Load the default and user actions if existing
+  def load_actions
+    load_default_actions(@control)
+    load_user_actions(@control) unless @control[:user_actions_dir].nil?
+    @control[:number_of_actions] = @control[:actions].size
+    update_state('ACTIONS_LOADED', 1, @control)
+  end
+
   def user_actions_dir
     @control[:user_actions_dir]
   end
@@ -85,10 +92,6 @@ class StateMachine
 
   def number_of_actions
     @control[:number_of_actions]
-  end
-
-  def log
-    @control[:log]
   end
 
   def sqlite3_db

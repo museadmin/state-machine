@@ -16,6 +16,7 @@ class StateMachineTest < Minitest::Test
     assert_equal USER_ACTIONS_DIR, sm.user_actions_dir
     sm.user_actions_dir = OTHER_ACTIONS
     assert_equal OTHER_ACTIONS, sm.user_actions_dir
+
   end
 
   def test_load_of_user_actions
@@ -36,34 +37,5 @@ class StateMachineTest < Minitest::Test
     assert_equal File.open(TMP_FILE, &:gets), ACTION_STATEMENT
     File.delete(TMP_FILE)
   end
-
-  def test_set_of_log_location
-
-    File.delete(TEST_LOG) if File.file? TEST_LOG
-
-    sm = StateMachine.new(
-        {
-            user_actions_dir: USER_ACTIONS_DIR,
-            log: TEST_LOG,
-            sqlite3_db: DB_FILE
-        }
-    )
-    assert sm.log == TEST_LOG
-    sm.load_actions
-    sm.execute
-    assert File.file? TEST_LOG
-
-    @found = false
-    File.foreach(TEST_LOG) do |line|
-      if line.include? 'Starting State Machine'
-        @found = true
-      end
-    end
-    assert @found
-
-    File.delete(TEST_LOG)
-
-  end
-
 
 end

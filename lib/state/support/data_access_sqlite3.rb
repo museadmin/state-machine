@@ -35,27 +35,26 @@ module DataAccessSqlite3
         "flag CHAR,                    -- The textual flag. e.g. PROCESS_NORMAL_SHUTDOWN\n" +
         "phase CHAR DEFAULT 'STARTUP', -- The run phase\n" +
         "payload CHAR,                 -- Any payload sent via msg for action\n" +
-        "state char DEFAULT 'SKIP'     -- The state\n" +
+        "activation char DEFAULT 'SKIP'     -- The activation. ACT or SKIP\n" +
         ")".strip ,
         control)
   end
 
-  def insert_standing_data(control)
+  def insert_state(state, control)
 
-    [
-        ['1', 'STARTUP', 'We are still starting up'],
-        ['0', 'SHUTDOWN', 'We are shutting down normally'],
-        ['0', 'EMERGENCY_EXIT', 'State machine has a bug, cannot be trusted'],
-        ['0', 'ACTIONS_LOADED', 'Successfully loaded all actions']
-    ].each do  |state|
-      execute_sql_statement(
-          "insert into state \n" +
-              "(status, state_flag, note)\n" +
-              "values\n" +
-              "('#{state[0]}', '#{state[1]}', '#{state[2]}');",
-      control)
+    execute_sql_statement(
+        "insert into state \n" +
+            "(status, state_flag, note)\n" +
+            "values\n" +
+            "('#{state[0]}', '#{state[1]}', '#{state[2]}');",
+        control)
+
+  end
+
+  def insert_states(states, control)
+    states.each do  |state|
+      insert_state(state, control)
     end
-
   end
 
   def delete_db(control)
