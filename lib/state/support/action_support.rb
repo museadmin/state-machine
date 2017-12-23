@@ -11,4 +11,8 @@ module ActionSupport
     logger
   end
 
+  def breakout
+    (query_property('breakout').to_s =~ /^[Tt]rue$/i) == 0
+  end
+
 end

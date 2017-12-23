@@ -17,7 +17,7 @@ module ActionLoader
   # User actions are loaded dynamically from a directory
   def load_user_actions(control)
 
-    Dir["#{control[:user_actions_dir]}/*.rb"].each do |file|
+    Dir["#{control[:user_actions_dir]}/action_*.rb"].each do |file|
       require file
       file_name = File.basename(file, '.rb')
       class_name = file_name.upper_camelcase

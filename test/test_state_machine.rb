@@ -11,21 +11,6 @@ DB_FILE = '../state-machine-dev/database/state-machine.db'
 
 class StateMachineTest < Minitest::Test
 
-  def test_set_of_user_actions_location
-    sm = StateMachine.new({user_actions_dir: USER_ACTIONS_DIR})
-    assert_equal USER_ACTIONS_DIR, sm.user_actions_dir
-    sm.user_actions_dir = OTHER_ACTIONS
-    assert_equal OTHER_ACTIONS, sm.user_actions_dir
-
-  end
-
-  def test_load_of_user_actions
-    sm = StateMachine.new({user_actions: USER_ACTIONS_DIR})
-    assert sm.number_of_actions == 0
-    sm.load_actions
-    assert sm.number_of_actions > 0
-  end
-
   def test_execution_of_user_actions
     File.delete(TMP_FILE) if File.file? TMP_FILE
 

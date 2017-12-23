@@ -13,21 +13,14 @@ class StateMachine
   include ActionLoader
   include DataAccessSqlite3
 
-  # TODO Convert to use a gem as well as a directory of classes
-  # needs creating another gem first...
-  # then refactor load actions
-
   # Constructor for State Machine
   # @param args Argument Hash
   def initialize(args = {})
-
-    args[:run_state] = 'NORMAL' if args[:run_state].nil?
 
     @control = {
       # State machine control
       run_state: args.fetch(:run_state) { 'NORMAL' },
       actions: {},
-      number_of_actions: 0,
       user_actions_dir: args[:user_actions_dir],
 
       # Logging
@@ -63,10 +56,6 @@ class StateMachine
 
   end
 
-  def breakout
-    (query_property('breakout').to_s =~ /^[Tt]rue$/i) == 0
-  end
-
   # Main state machine loop
   def execute
     until breakout do
@@ -88,34 +77,10 @@ class StateMachine
   def load_actions
     load_default_actions(@control)
     load_user_actions(@control) unless @control[:user_actions_dir].nil?
-    @control[:number_of_actions] = @control[:actions].size
     update_state('ACTIONS_LOADED', 1)
   end
 
-  def user_actions_dir
-    @control[:user_actions_dir]
-  end
-
-  def user_actions_dir=(path)
-    @control[:user_actions_dir] = path
-  end
-
-  def number_of_actions
-    @control[:number_of_actions]
-  end
-
-  def sqlite3_db
-    @control[:sqlite3_db]
-  end
-  
-  def run_root
-    @control[:run_root]
-  end
-  
-  def run_root=(path)
-    @control[:run_root] = path
-  end
-  
+  # Create the default runtime directories
   def create_run_dirs
     @control[:run_dir] = Pathname.new("#{@control[:run_root]}/#{@control[:user_tag]}/#{@control[:run_tag]}")
     FileUtils.mkdir_p(@control[:run_dir])
