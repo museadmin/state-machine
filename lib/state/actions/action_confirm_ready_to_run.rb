@@ -24,15 +24,15 @@ class ActionConfirmReadyToRun < ParentAction
 
   def execute(control)
 
-    if active(control)
+    if active
 
       # Check the state flags that indicate we're ready to run
       puts @flag
 
-      update_state('READY_TO_RUN', 1, control)
-      update_state('RUNNING', 1, control)
-      update_state('STARTUP', 0, control)
-      control[:phase] = 'RUNNING'
+      update_state('READY_TO_RUN', 1)
+      update_state('RUNNING', 1)
+      update_state('STARTUP', 0)
+      update_property('phase', 'RUNNING')
     end
 
   ensure

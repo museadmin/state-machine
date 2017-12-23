@@ -12,8 +12,8 @@ class ParentAction
     insert_states(@states) unless @states.nil?
   end
 
-  def active(control)
-    (@phase == control[:phase] || @phase == 'ALL') && @activation == 'ACT'
+  def active
+    (@phase == query_property('phase') || @phase == 'ALL') && @activation == 'ACT'
   end
 
   def save_action(action)

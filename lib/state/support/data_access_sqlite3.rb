@@ -3,15 +3,14 @@ require 'sqlite3'
 module DataAccessSqlite3
 
   attr_accessor :db_file
+
   def initialize
     @db_file = nil
   end
 
-
   def set_db_file(db_file)
     @db_file = db_file
   end
-
 
   def execute_sql_query(sql_query)
     rows = []
@@ -75,7 +74,7 @@ module DataAccessSqlite3
     File.delete(@db_file) if File.file? @db_file
   end
 
-  def update_state(flag, value, control)
+  def update_state(flag, value)
 
     raise "Unexpected value for state (#{value})" if value != 0 and value != 1
 
@@ -109,7 +108,17 @@ module DataAccessSqlite3
     execute_sql_query(
         "select value from properties \n" +
             "where property = '#{property}';"
+    )[0][0]
+  end
+
+  def update_property(property, value)
+
+    execute_sql_statement(
+        "update properties set \n" +
+            "value = '#{value}' \n" +
+            "where property = '#{property}';"
     )
+
   end
 
 end

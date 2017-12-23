@@ -23,7 +23,7 @@ class ActionPrimaryUser < ParentAction
 
   def execute(control)
 
-    if active(control)
+    if active
 
       puts @flag
 

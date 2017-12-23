@@ -23,16 +23,16 @@ class ActionEmergencyShutdown < ParentAction
 
   def execute(control)
 
-    if active(control)
+    if active
 
       # Check the state flags that indicate we're ready to run
       puts @flag
 
-      update_state('EMERGENCY_SHUTDOWN', 1, control)
-      update_state('RUNNING', 0, control)
-      update_state('READY_TO_RUN', 0, control)
-      control[:phase] = 'SHUTDOWN'
-      control[:breakout] = true
+      update_state('EMERGENCY_SHUTDOWN', 1)
+      update_state('RUNNING', 0)
+      update_state('READY_TO_RUN', 0)
+      update_property('phase', 'SHUTDOWN')
+      update_property('breakout', true)
     end
 
   ensure

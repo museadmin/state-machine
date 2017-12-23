@@ -26,17 +26,15 @@ class StateMachine
     @control = {
       # State machine control
       run_state: args.fetch(:run_state) { 'NORMAL' },
-      breakout: false,
       actions: {},
       number_of_actions: 0,
       user_actions_dir: args[:user_actions_dir],
-      phase: 'STARTUP',
 
       # Logging
       log_level: args.fetch(:log_level) { Logger::DEBUG },
 
       # Control DB
-      sqlite3_db: args[:sqlite3_db],
+      sqlite3_db: nil,
 
       # The run directories
       run_root: args.fetch(:run_root) { "#{Dir.home}/state_machine_root" },
@@ -51,12 +49,12 @@ class StateMachine
     insert_states(default_states)
 
     insert_property('run_state', args.fetch(:run_state) { 'NORMAL' })
-    insert_property('breakout', 'false' )
+    insert_property('breakout', false )
     insert_property('user_actions_dir', args.fetch(:user_actions_dir) { 'NULL' })
     insert_property('phase', 'STARTUP')
-    insert_property('run_root',  args.fetch(:run_root) { "#{Dir.home}/state_machine_root" })
-    insert_property('user_tag', args.fetch(:run_root) { "default" })
-    insert_property('run_tag', Time.now.to_f)
+    insert_property('run_root',  @control[:run_root])
+    insert_property('user_tag', @control[:user_tag])
+    insert_property('run_tag', @control[:run_tag])
 
     # Setup the logger
     @control[:log] = "#{@control[:run_dir]}/log/run.log"
@@ -65,19 +63,22 @@ class StateMachine
 
   end
 
+  def breakout
+    (query_property('breakout').to_s =~ /^[Tt]rue$/i) == 0
+  end
+
   # Main state machine loop
   def execute
-    until @control[:breakout] do
+    until breakout do
       @control[:actions].each_value do |action|
         action.execute(@control)
-        break if @control[:breakout]
+        break if breakout
       end
     end
   end
 
   # Create the control database
   def create_db
-    raise 'Unable to determine run data directory' if @control[:sqlite3_db].nil?
     set_db_file(@control[:sqlite3_db])
     delete_db
     create_tables
@@ -88,7 +89,7 @@ class StateMachine
     load_default_actions(@control)
     load_user_actions(@control) unless @control[:user_actions_dir].nil?
     @control[:number_of_actions] = @control[:actions].size
-    update_state('ACTIONS_LOADED', 1, @control)
+    update_state('ACTIONS_LOADED', 1)
   end
 
   def user_actions_dir
