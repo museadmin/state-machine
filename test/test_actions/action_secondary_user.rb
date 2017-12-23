@@ -15,16 +15,20 @@ class ActionSecondaryUser < ParentAction
       @payload = 'NULL'
       super(control)
     elsif
-      recover_action(self, control)
+      recover_action(self)
     end
   end
 
   def execute(control)
 
-    if check_phase(@phase, control) && @activation == 'ACT'
+    if active(control)
+
       puts @flag
+
+      # Write out proof we were here for unit test
       File.write('/tmp/UserAction', :SECONDARY_USER_ACTION)
-      control[:breakout] = true
+      # Trigger the shutdown process
+      control[:actions]['NORMAL_SHUTDOWN'].activation = 'ACT'
     end
 
   end

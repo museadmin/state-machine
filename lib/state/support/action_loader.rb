@@ -1,4 +1,7 @@
 require 'state/actions/action_confirm_ready_to_run'
+require 'state/actions/action_normal_shutdown'
+require 'state/actions/action_emergency_shutdown'
+
 require 'facets'
 
 
@@ -7,6 +10,8 @@ module ActionLoader
   # Default actions are hard coded here
   def load_default_actions(control)
     control[:actions]['CONFIRM_READY_TO_RUN'] = ActionConfirmReadyToRun.new(control)
+    control[:actions]['NORMAL_SHUTDOWN'] = ActionNormalShutdown.new(control)
+    control[:actions]['EMERGENCY_SHUTDOWN'] = ActionEmergencyShutdown.new(control)
   end
 
   # User actions are loaded dynamically from a directory

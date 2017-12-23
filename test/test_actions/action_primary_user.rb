@@ -16,16 +16,19 @@ class ActionPrimaryUser < ParentAction
       @payload = 'NULL'
       super(control)
     elsif
-      recover_action(self, control)
+      recover_action(self)
     end
 
   end
 
   def execute(control)
 
-    if check_phase(@phase, control) && @activation == 'ACT'
+    if active(control)
+
       puts @flag
+
       control[:actions]['SECONDARY_USER_ACTION'].activation = 'ACT'
+      control[:actions]['PRIMARY_USER_ACTION'].activation = 'SKIP'
     end
 
   end

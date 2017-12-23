@@ -7,37 +7,35 @@ class ParentAction
   attr_accessor :flag, :phase, :activation, :payload
 
   def initialize(control)
-    save_action(self, control)
-    insert_states(@states, control) unless @states.nil?
+    set_db_file(control[:sqlite3_db])
+    save_action(self)
+    insert_states(@states) unless @states.nil?
   end
 
-  def check_phase(phase, control)
-    phase == control[:phase] || phase == 'ALL'
+  def active(control)
+    (@phase == control[:phase] || @phase == 'ALL') && @activation == 'ACT'
   end
 
-  def save_action(action, control)
+  def save_action(action)
     execute_sql_statement(
       "insert into state_machine \n" +
       "(flag, phase, payload, activation)\n" +
       "values\n" +
-      "('#{action.flag}', '#{action.phase}', '#{action.payload}', '#{action.activation}');",
-      control
+      "('#{action.flag}', '#{action.phase}', '#{action.payload}', '#{action.activation}');"
     )
   end
 
-  def update_action(action, control)
+  def update_action(action)
     execute_sql_statement(
     "update state_machine set \n" +
     "phase = '#{action.phase}', payload = '#{action.payload}', activation = '#{action.activation}' \n" +
-    "where flag = '#{action.flag}';",
-        control
+    "where flag = '#{action.flag}';"
     )
   end
 
-  def recover_action(action, control)
+  def recover_action(action)
     rows = execute_sql_query(
-      "select phase, payload, activation from state_machine where flag = '#{action.flag}'",
-      control
+      "select phase, payload, activation from state_machine where flag = '#{action.flag}'"
     )
 
     raise("Database corruption? More than one record found for action (#{action.flag})") if

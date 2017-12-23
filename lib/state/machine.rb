@@ -48,6 +48,15 @@ class StateMachine
     # Create the runtime environment
     create_run_dirs
     create_db
+    insert_states(default_states)
+
+    insert_property('run_state', args.fetch(:run_state) { 'NORMAL' })
+    insert_property('breakout', 'false' )
+    insert_property('user_actions_dir', args.fetch(:user_actions_dir) { 'NULL' })
+    insert_property('phase', 'STARTUP')
+    insert_property('run_root',  args.fetch(:run_root) { "#{Dir.home}/state_machine_root" })
+    insert_property('user_tag', args.fetch(:run_root) { "default" })
+    insert_property('run_tag', Time.now.to_f)
 
     # Setup the logger
     @control[:log] = "#{@control[:run_dir]}/log/run.log"
@@ -69,9 +78,9 @@ class StateMachine
   # Create the control database
   def create_db
     raise 'Unable to determine run data directory' if @control[:sqlite3_db].nil?
-    delete_db(@control)
-    create_tables(@control)
-    insert_states(default_states, @control)
+    set_db_file(@control[:sqlite3_db])
+    delete_db
+    create_tables
   end
 
   # Load the default and user actions if existing

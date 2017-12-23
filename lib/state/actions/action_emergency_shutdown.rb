@@ -1,19 +1,18 @@
 require 'state/actions/parent_action'
 
-class ActionConfirmReadyToRun < ParentAction
+class ActionEmergencyShutdown < ParentAction
 
   def initialize(control)
 
-    @flag = 'CONFIRM_READY_TO_RUN'
+    @flag = 'EMERGENCY_SHUTDOWN'
 
     @states = [
-        ['0', 'RUNNING', 'We are running normally'],
-        ['0', 'READY_TO_RUN', 'We are ready to run']
+        ['0', 'EMERGENCY_SHUTDOWN', 'State machine has a bug, cannot be trusted']
     ]
 
     if control[:run_state] == 'NORMAL'
       @phase = 'ALL'
-      @activation = 'ACT'
+      @activation = 'SKIP'
       @payload = 'NULL'
       super(control)
     elsif
@@ -29,10 +28,11 @@ class ActionConfirmReadyToRun < ParentAction
       # Check the state flags that indicate we're ready to run
       puts @flag
 
-      update_state('READY_TO_RUN', 1, control)
-      update_state('RUNNING', 1, control)
-      update_state('STARTUP', 0, control)
-      control[:phase] = 'RUNNING'
+      update_state('EMERGENCY_SHUTDOWN', 1, control)
+      update_state('RUNNING', 0, control)
+      update_state('READY_TO_RUN', 0, control)
+      control[:phase] = 'SHUTDOWN'
+      control[:breakout] = true
     end
 
   ensure
