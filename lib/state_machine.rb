@@ -1,5 +1,4 @@
 require 'state/machine/version'
-require 'state/required_actions'
 require 'state/support/action_loader'
 require 'state/support/action_support'
 require 'state/support/standing_data'

@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require 'state/machine'
+require 'state_machine'
 
 USER_ACTIONS_DIR = './test/test_actions'
 OTHER_ACTIONS = '/some/path'

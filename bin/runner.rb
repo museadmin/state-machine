@@ -1,4 +1,4 @@
-require 'state/machine'
+require 'state/state_machine'
 
 # TODO Create a user actions dir somewhere outside the gem
 USER_ACTIONS = '/Users/atkinsb/RubymineProjects/state-machine/test/test_actions'

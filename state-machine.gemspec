@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.11"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "facets"
-  spec.add_development_dependency "minitest"
-  spec.add_development_dependency "sqlite3"
+  spec.add_runtime_dependency 'bundler', '1.16.0'
+  spec.add_runtime_dependency 'rake', '~> 0'
+  spec.add_runtime_dependency 'facets', '3.1.0'
+  spec.add_runtime_dependency 'minitest', '5.10.1'
+  spec.add_runtime_dependency 'sqlite3', '1.3.13'
 end
