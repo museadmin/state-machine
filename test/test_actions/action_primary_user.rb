@@ -1,36 +1,31 @@
+# frozen_string_literal: true
+
 require 'state/actions/parent_action'
 
+# A test action
 class ActionPrimaryUser < ParentAction
-
-  def initialize(control)
-
-    @flag = 'PRIMARY_USER_ACTION'
-
-    @states = [
-        ['0', 'PRIMARY_TEST_STATE', 'A test state for the unit tests']
-    ]
-
+  def initialize(control, flag)
+    @flag = flag
     if control[:run_state] == 'NORMAL'
       @phase = 'RUNNING'
       @activation = 'ACT'
       @payload = 'NULL'
       super(control)
-    elsif
+    else
       recover_action(self)
     end
+  end
 
+  def states
+    [
+        ['0', 'PRIMARY_TEST_STATE', 'A test state for the unit tests']
+    ]
   end
 
   def execute(control)
+    return unless active
 
-    if active
-
-      puts @flag
-
-      control[:actions]['SECONDARY_USER_ACTION'].activation = 'ACT'
-      control[:actions]['PRIMARY_USER_ACTION'].activation = 'SKIP'
-    end
-
+    control[:actions]['ACTION_SECONDARY_USER'].activation = 'ACT'
+    control[:actions]['ACTION_PRIMARY_USER'].activation = 'SKIP'
   end
-
 end

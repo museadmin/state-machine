@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 def default_states
   [
@@ -5,4 +6,3 @@ def default_states
     ['0', 'ACTIONS_LOADED', 'Successfully loaded all actions']
   ]
 end
-

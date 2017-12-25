@@ -1,6 +1,7 @@
+# frozen_string_literal: true
 
+# Support methods for actions
 module ActionSupport
-
   def set_logger(log_level = Logger::DEBUG, log = '/tmp/logfile.log')
     logger = Logger.new(log)
     logger.level = log_level
@@ -14,5 +15,4 @@ module ActionSupport
   def breakout
     (query_property('breakout').to_s =~ /^[Tt]rue$/i) == 0
   end
-
 end

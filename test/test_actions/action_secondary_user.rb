@@ -1,36 +1,33 @@
+# frozen_string_literal: true
+
 require 'state/actions/parent_action'
 
+# A test action
 class ActionSecondaryUser < ParentAction
-
-  def initialize(control)
-
-    @flag = 'SECONDARY_USER_ACTION'
-    @states = [
-      ['0', 'SECONDARY_TEST_STATE', 'A test state for the unit tests']
-    ]
-
+  def initialize(control, flag)
+    @flag = flag
     if control[:run_state] == 'NORMAL'
       @phase = 'RUNNING'
       @activation = 'SKIP'
       @payload = 'NULL'
       super(control)
-    elsif
+    else
       recover_action(self)
     end
   end
 
-  def execute(control)
-
-    if active
-
-      puts @flag
-
-      # Write out proof we were here for unit test
-      File.write('/tmp/UserAction', :SECONDARY_USER_ACTION)
-      # Trigger the shutdown process
-      control[:actions]['NORMAL_SHUTDOWN'].activation = 'ACT'
-    end
-
+  def states
+    [
+        ['0', 'SECONDARY_TEST_STATE', 'A test state for the unit tests']
+    ]
   end
 
+  def execute(control)
+    return unless active
+    # Write out proof we were here for unit test
+    File.write('/tmp/UserAction', :SECONDARY_USER_ACTION)
+    # Trigger the shutdown process
+    normal_shutdown(control)
+    @activation = 'SKIP'
+  end
 end

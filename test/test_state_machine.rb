@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'state_machine'
 
@@ -10,11 +12,10 @@ TEST_LOG = '/tmp/test.log'
 DB_FILE = '../state-machine-dev/database/state-machine.db'
 
 class StateMachineTest < Minitest::Test
-
   def test_execution_of_user_actions
     File.delete(TMP_FILE) if File.file? TMP_FILE
 
-    sm = StateMachine.new({user_actions_dir: USER_ACTIONS_DIR})
+    sm = StateMachine.new(user_actions_dir: USER_ACTIONS_DIR)
     sm.load_actions
     sm.execute
 
@@ -23,4 +24,5 @@ class StateMachineTest < Minitest::Test
     File.delete(TMP_FILE)
   end
 
+  # TODO: Test for passing a payload to an action
 end
