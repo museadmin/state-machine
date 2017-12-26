@@ -4,7 +4,6 @@ require 'sqlite3'
 
 # Database access methods
 module DataAccessSqlite3
-
   def execute_sql_query(sql_query)
     rows = []
     SQLite3::Database.new(@sqlite3_db) do |db|
@@ -106,7 +105,7 @@ module DataAccessSqlite3
 
   def save_action(action)
     execute_sql_statement(
-        "insert into state_machine \n" \
+      "insert into state_machine \n" \
       "(flag, phase, payload, activation)\n" \
       "values\n" \
       "('#{@flag}',\n" \
@@ -118,7 +117,7 @@ module DataAccessSqlite3
 
   def update_action(action)
     execute_sql_statement(
-        "update state_machine set \n" \
+      "update state_machine set \n" \
       "phase = '#{action.phase}',\n" \
       " payload = '#{action.payload}',\n" \
       " activation = '#{action.activation}' \n" \
@@ -137,7 +136,7 @@ module DataAccessSqlite3
 
   def recover_action(action)
     rows = execute_sql_query(
-        "select phase, payload, activation\n" \
+      "select phase, payload, activation\n" \
       " from state_machine\n" \
       " where flag = '#{action.flag}'"
     )
@@ -150,7 +149,7 @@ module DataAccessSqlite3
 
   def query_activation(flag)
     execute_sql_query(
-        "select activation from state_machine \n" \
+      "select activation from state_machine \n" \
       "where flag = '#{flag}';"
     )[0][0]
   end

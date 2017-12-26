@@ -19,15 +19,15 @@ class ParentAction
 
   def active
     (@phase == query_run_phase_state || @phase == 'ALL') &&
-        query_activation(@flag) == 'ACT'
+      query_activation(@flag) == 'ACT'
   end
 
   def activate(flag)
-    update_action_where(nil,nil, 'ACT', flag)
+    update_action_where(nil, nil, 'ACT', flag)
   end
 
   def deactivate(flag)
-    update_action_where(nil,nil, 'SKIP', flag)
+    update_action_where(nil, nil, 'SKIP', flag)
   end
 
   def normal_shutdown

@@ -4,9 +4,9 @@ require 'state/actions/parent_action'
 
 # A test action
 class ActionSecondaryUser < ParentAction
-  def initialize(sqlite3_db, run_state, flag)
+  def initialize(sqlite3_db, run_mode, flag)
     @flag = flag
-    if run_state == 'NORMAL'
+    if run_mode == 'NORMAL'
       @phase = 'RUNNING'
       @activation = 'SKIP'
       @payload = 'NULL'
@@ -18,7 +18,7 @@ class ActionSecondaryUser < ParentAction
 
   def states
     [
-        ['0', 'SECONDARY_TEST_STATE', 'A test state for the unit tests']
+      ['0', 'SECONDARY_TEST_STATE', 'A test state for the unit tests']
     ]
   end
 

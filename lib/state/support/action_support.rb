@@ -17,31 +17,37 @@ module ActionSupport
   end
 
   def update_run_phase_state(run_phase)
-    run_phase.update_values.each do |phase|
-      update_state(phase[0], phase[1])
+    run_phase_flags.each do |flag|
+      if flag == run_phase
+        update_state(flag, 1)
+      else
+        update_state(flag, 0)
+      end
     end
   end
 
   def query_run_phase_state
-    rps = RunPhase.new
-    rps.run_phase_flags.each do |rpf|
-      state = query_state(rpf)
-      return rpf unless state == 0
+    run_phase_flags.each do |rpf|
+      state = query_state(rpf).to_i
+      return rpf unless state.zero?
     end
     raise 'Could not determine run phase from DB'
   end
 
-  def update_run_state(run_state)
-    run_state.update_values.each do |phase|
-      update_state(phase[0], phase[1])
+  def update_run_mode(run_mode)
+    run_mode_flags.each do |flag|
+      if flag == run_mode
+        update_state(flag, 1)
+      else
+        update_state(flag, 0)
+      end
     end
   end
 
   def query_run_state
-    rs = RunState.new
-    rs.run_state_flags.each do |rsf|
-      state = query_state(rsf)
-      return rsf unless state == 0
+    run_mode_flags.each do |rsf|
+      state = query_state(rsf).to_i
+      return rsf unless state.zero?
     end
     raise 'Could not determine run state from DB'
   end

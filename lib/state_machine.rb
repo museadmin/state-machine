@@ -18,9 +18,9 @@ class StateMachine
   # @param args Argument Hash
   def initialize(args = {})
     # State machine control
-    @run_state = args.fetch(:run_state) { 'NORMAL' }
+    @run_mode = args.fetch(:run_mode) { 'NORMAL' }
     @actions = {}
-    @user_actions_dir  = args[:user_actions_dir]
+    @user_actions_dir = args[:user_actions_dir]
     # Logging
     @log = nil
     @log_level = args.fetch(:log_level) { Logger::DEBUG }
@@ -45,9 +45,7 @@ class StateMachine
   end
 
   # Add these properties to the properties table in db
-  # @param args As passed to initializer
   def insert_runtime_properties
-    insert_property('run_state', @run_state) # TODO:
     insert_property('user_actions_dir', @user_actions_dir)
     insert_property('run_root', @run_root)
     insert_property('user_tag', @user_tag)

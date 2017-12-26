@@ -4,9 +4,9 @@ require 'state/actions/parent_action'
 
 # Check we're ready to run and then change state
 class ActionConfirmReadyToRun < ParentAction
-  def initialize(sqlite3_db, run_state, flag)
+  def initialize(sqlite3_db, run_mode, flag)
     @flag = flag
-    if run_state == 'NORMAL'
+    if run_mode == 'NORMAL'
       @phase = 'ALL'
       @activation = 'ACT'
       @payload = 'NULL'
@@ -18,19 +18,13 @@ class ActionConfirmReadyToRun < ParentAction
 
   def states
     [
-        ['0', 'RUNNING', 'We are running normally'],
-        ['0', 'READY_TO_RUN', 'We are ready to run']
+      ['0', 'READY_TO_RUN', 'We are ready to run']
     ]
   end
 
   def execute
-    if active
-      # TODO: Check the state flags that indicate we're ready to run
-      # For now assume we're ready
-      update_state('STARTUP', 0)
-      update_state('READY_TO_RUN', 1)
-      update_state('RUNNING', 1)
-      update_property('phase', 'RUNNING')
-    end
+    return unless active
+    update_run_phase_state('RUNNING')
+    update_state('READY_TO_RUN', 1)
   end
 end

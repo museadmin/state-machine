@@ -11,11 +11,11 @@ module ActionLoader
   # Default actions are hard coded here
   def load_default_actions
     name = 'SYS_CONFIRM_READY_TO_RUN'
-    @actions[name] = ActionConfirmReadyToRun.new(@sqlite3_db, @run_state, name)
+    @actions[name] = ActionConfirmReadyToRun.new(@sqlite3_db, @run_mode, name)
     name = 'SYS_NORMAL_SHUTDOWN'
-    @actions[name] = ActionNormalShutdown.new(@sqlite3_db, @run_state, name)
+    @actions[name] = ActionNormalShutdown.new(@sqlite3_db, @run_mode, name)
     name = 'SYS_EMERGENCY_SHUTDOWN'
-    @actions[name] = ActionEmergencyShutdown.new(@sqlite3_db, @run_state, name)
+    @actions[name] = ActionEmergencyShutdown.new(@sqlite3_db, @run_mode, name)
   end
 
   # User actions are loaded dynamically from a directory
@@ -24,9 +24,10 @@ module ActionLoader
       require file
       file_name = File.basename(file, '.rb')
       name = file_name.upper_camelcase
-      action = Object.const_get(name).new(@sqlite3_db,
-                                          @run_state,
-                                          file_name.snakecase.upcase)
+      action = Object.const_get(name)
+                     .new(@sqlite3_db,
+                          @run_mode,
+                          file_name.snakecase.upcase)
       @actions[file_name.snakecase.upcase] = action
     end
   end

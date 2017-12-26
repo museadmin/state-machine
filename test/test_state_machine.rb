@@ -12,6 +12,10 @@ TEST_LOG = '/tmp/test.log'
 DB_FILE = '../state-machine-dev/database/state-machine.db'
 
 class StateMachineTest < Minitest::Test
+  def test_that_it_has_a_version_number
+    refute_nil ::State::Machine::VERSION
+  end
+
   def test_execution_of_user_actions
     File.delete(TMP_FILE) if File.file? TMP_FILE
 
