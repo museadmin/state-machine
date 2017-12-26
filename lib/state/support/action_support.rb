@@ -13,6 +13,36 @@ module ActionSupport
   end
 
   def breakout
-    (query_property('breakout').to_s =~ /^[Tt]rue$/i) == 0
+    query_state('BREAKOUT') == 1
+  end
+
+  def update_run_phase_state(run_phase)
+    run_phase.update_values.each do |phase|
+      update_state(phase[0], phase[1])
+    end
+  end
+
+  def query_run_phase_state
+    rps = RunPhase.new
+    rps.run_phase_flags.each do |rpf|
+      state = query_state(rpf)
+      return rpf unless state == 0
+    end
+    raise 'Could not determine run phase from DB'
+  end
+
+  def update_run_state(run_state)
+    run_state.update_values.each do |phase|
+      update_state(phase[0], phase[1])
+    end
+  end
+
+  def query_run_state
+    rs = RunState.new
+    rs.run_state_flags.each do |rsf|
+      state = query_state(rsf)
+      return rsf unless state == 0
+    end
+    raise 'Could not determine run state from DB'
   end
 end

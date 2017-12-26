@@ -4,13 +4,13 @@ require 'state/actions/parent_action'
 
 # Check we're ready to run and then change state
 class ActionConfirmReadyToRun < ParentAction
-  def initialize(control, flag)
+  def initialize(sqlite3_db, run_state, flag)
     @flag = flag
-    if control[:run_state] == 'NORMAL'
+    if run_state == 'NORMAL'
       @phase = 'ALL'
       @activation = 'ACT'
       @payload = 'NULL'
-      super(control)
+      super(sqlite3_db)
     else
       recover_action(self)
     end
@@ -23,7 +23,7 @@ class ActionConfirmReadyToRun < ParentAction
     ]
   end
 
-  def execute(control)
+  def execute
     if active
       # TODO: Check the state flags that indicate we're ready to run
       # For now assume we're ready
@@ -32,7 +32,5 @@ class ActionConfirmReadyToRun < ParentAction
       update_state('RUNNING', 1)
       update_property('phase', 'RUNNING')
     end
-  ensure
-    update_action(self)
   end
 end

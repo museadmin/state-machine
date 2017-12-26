@@ -4,13 +4,13 @@ require 'state/actions/parent_action'
 
 # Action a normal shutdown
 class ActionNormalShutdown < ParentAction
-  def initialize(control, flag)
+  def initialize(sqlite3_db, run_state, flag)
     @flag = flag
-    if control[:run_state] == 'NORMAL'
+    if run_state == 'NORMAL'
       @phase = 'ALL'
       @activation = 'SKIP'
       @payload = 'NULL'
-      super(control)
+      super(sqlite3_db)
     else
       recover_action(self)
     end
@@ -22,15 +22,15 @@ class ActionNormalShutdown < ParentAction
     ]
   end
 
-  def execute(control)
+  def execute
     if active
-      update_state('SHUTDOWN', 1)
-      update_state('RUNNING', 0)
+      run_phase = RunPhase.new
+      run_phase.shutdown = 1
+      update_run_phase_state(run_phase)
+
       update_state('READY_TO_RUN', 0)
       update_property('phase', 'SHUTDOWN')
-      update_property('breakout', true)
+      update_state('BREAKOUT', 1)
     end
-  ensure
-    update_action(self)
   end
 end

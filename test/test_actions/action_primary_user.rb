@@ -4,13 +4,13 @@ require 'state/actions/parent_action'
 
 # A test action
 class ActionPrimaryUser < ParentAction
-  def initialize(control, flag)
+  def initialize(sqlite3_db, run_state, flag)
     @flag = flag
-    if control[:run_state] == 'NORMAL'
+    if run_state == 'NORMAL'
       @phase = 'RUNNING'
       @activation = 'ACT'
       @payload = 'NULL'
-      super(control)
+      super(sqlite3_db)
     else
       recover_action(self)
     end
@@ -22,10 +22,9 @@ class ActionPrimaryUser < ParentAction
     ]
   end
 
-  def execute(control)
+  def execute
     return unless active
-
-    control[:actions]['ACTION_SECONDARY_USER'].activation = 'ACT'
-    control[:actions]['ACTION_PRIMARY_USER'].activation = 'SKIP'
+    activate('ACTION_SECONDARY_USER')
+    deactivate(@flag)
   end
 end

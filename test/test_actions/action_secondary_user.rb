@@ -4,13 +4,13 @@ require 'state/actions/parent_action'
 
 # A test action
 class ActionSecondaryUser < ParentAction
-  def initialize(control, flag)
+  def initialize(sqlite3_db, run_state, flag)
     @flag = flag
-    if control[:run_state] == 'NORMAL'
+    if run_state == 'NORMAL'
       @phase = 'RUNNING'
       @activation = 'SKIP'
       @payload = 'NULL'
-      super(control)
+      super(sqlite3_db)
     else
       recover_action(self)
     end
@@ -22,12 +22,12 @@ class ActionSecondaryUser < ParentAction
     ]
   end
 
-  def execute(control)
+  def execute
     return unless active
     # Write out proof we were here for unit test
     File.write('/tmp/UserAction', :SECONDARY_USER_ACTION)
     # Trigger the shutdown process
-    normal_shutdown(control)
-    @activation = 'SKIP'
+    normal_shutdown
+    deactivate(@flag)
   end
 end

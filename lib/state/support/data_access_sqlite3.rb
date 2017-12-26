@@ -4,15 +4,10 @@ require 'sqlite3'
 
 # Database access methods
 module DataAccessSqlite3
-  attr_accessor :db_file
-
-  def initialize
-    @db_file = nil
-  end
 
   def execute_sql_query(sql_query)
     rows = []
-    SQLite3::Database.new(@db_file) do |db|
+    SQLite3::Database.new(@sqlite3_db) do |db|
       db.execute(sql_query) do |row|
         rows.push row
       end
@@ -21,7 +16,7 @@ module DataAccessSqlite3
   end
 
   def execute_sql_statement(sql_statement)
-    SQLite3::Database.new(@db_file) do |db|
+    SQLite3::Database.new(@sqlite3_db) do |db|
       db.execute(sql_statement)
     end
   end
@@ -65,7 +60,7 @@ module DataAccessSqlite3
   end
 
   def delete_db
-    File.delete(@db_file) if File.file? @db_file
+    File.delete(@sqlite3_db) if File.file? @sqlite3_db
   end
 
   def update_state(flag, value)
@@ -82,7 +77,7 @@ module DataAccessSqlite3
     execute_sql_query(
       "select status from state \n" \
       "where state_flag = '#{flag}';"
-    )
+    )[0][0]
   end
 
   def insert_property(property, value)
@@ -107,5 +102,56 @@ module DataAccessSqlite3
       "value = '#{value}' \n" \
       "where property = '#{property}';"
     )
+  end
+
+  def save_action(action)
+    execute_sql_statement(
+        "insert into state_machine \n" \
+      "(flag, phase, payload, activation)\n" \
+      "values\n" \
+      "('#{@flag}',\n" \
+      " '#{action.phase}',\n" \
+      " '#{action.payload}',\n" \
+      " '#{action.activation}');"
+    )
+  end
+
+  def update_action(action)
+    execute_sql_statement(
+        "update state_machine set \n" \
+      "phase = '#{action.phase}',\n" \
+      " payload = '#{action.payload}',\n" \
+      " activation = '#{action.activation}' \n" \
+      "where flag = '#{action.flag}';"
+    )
+  end
+
+  def update_action_where(phase, payload, activation, flag)
+    ph = phase.nil? ? '' : "phase = '#{phase}',"
+    pa = payload.nil? ? '' : "payload = '#{payload}',"
+    ac = activation.nil? ? '' : " activation = '#{activation}' "
+    wh = "where flag = '#{flag}';"
+    sql = 'update state_machine set ' + ph + pa + ac + wh
+    execute_sql_statement(sql)
+  end
+
+  def recover_action(action)
+    rows = execute_sql_query(
+        "select phase, payload, activation\n" \
+      " from state_machine\n" \
+      " where flag = '#{action.flag}'"
+    )
+    raise("More than one record found for action (#{action.flag})") if
+        rows.size > 1
+    action.phase = rows.split(',')[0]
+    action.payload = rows.split(',')[1]
+    action.activation = rows.split(',')[2]
+  end
+
+  def query_activation(flag)
+    execute_sql_query(
+        "select activation from state_machine \n" \
+      "where flag = '#{flag}';"
+    )[0][0]
   end
 end
