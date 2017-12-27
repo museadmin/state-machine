@@ -9,10 +9,11 @@ class ParentAction
   include DataAccessSqlite3
   include ActionSupport
 
-  attr_accessor :flag, :phase, :activation, :payload
+  attr_accessor :flag, :phase, :activation, :payload, :logger
 
-  def initialize(sqlite3_db)
+  def initialize(sqlite3_db, logger)
     @sqlite3_db = sqlite3_db
+    @logger = logger
     save_action(self)
     insert_states(states) unless states.nil?
   end

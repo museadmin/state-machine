@@ -23,6 +23,7 @@ class StateMachine
     @user_actions_dir = args[:user_actions_dir]
     # Logging
     @log = nil
+    @logger = nil
     @log_level = args.fetch(:log_level) { Logger::DEBUG }
     # Control DB
     @sqlite3_db = nil
@@ -35,6 +36,12 @@ class StateMachine
     create_run_environment
     insert_runtime_properties
     set_logging
+  end
+
+  def include_module(type)
+    if Module.const_defined?(type)
+      self.singleton_class.send(:include, Module.const_get(type))
+    end
   end
 
   # Setup the logging
@@ -50,6 +57,7 @@ class StateMachine
     insert_property('run_root', @run_root)
     insert_property('user_tag', @user_tag)
     insert_property('run_tag', @run_tag)
+    insert_property('run_dir', @run_dir)
   end
 
   # Setup the runtime environment
