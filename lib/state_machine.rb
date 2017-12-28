@@ -14,6 +14,8 @@ class StateMachine
   include ActionLoader
   include DataAccessSqlite3
 
+  attr_reader :run_dir
+
   # Constructor for State Machine
   # @param args Argument Hash
   def initialize(args = {})
@@ -30,7 +32,7 @@ class StateMachine
     # The run directories
     @run_root = args.fetch(:run_root) { "#{Dir.home}/state_machine_root" }
     @user_tag = args.fetch(:run_root) { 'default' }
-    @run_tag = Time.now.to_f
+    @run_tag = (Time.now.to_f * 1000).to_i
     @run_dir = nil
 
     create_run_environment

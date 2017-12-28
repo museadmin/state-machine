@@ -153,4 +153,5 @@ module DataAccessSqlite3
       "where flag = '#{flag}';"
     )[0][0]
   end
+
 end
