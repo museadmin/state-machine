@@ -23,8 +23,9 @@ class ParentAction
       query_activation(@flag) == 'ACT'
   end
 
-  def activate(flag)
-    update_action_where(nil, nil, 'ACT', flag)
+  def activate(args)
+    update_action_where(args[:phase],
+      args[:payload], 'ACT', args[:flag])
   end
 
   def deactivate(flag)
@@ -32,6 +33,6 @@ class ParentAction
   end
 
   def normal_shutdown
-    activate('SYS_NORMAL_SHUTDOWN')
+    activate(flag: 'SYS_NORMAL_SHUTDOWN')
   end
 end

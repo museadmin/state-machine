@@ -24,7 +24,7 @@ class ActionPrimaryUser < ParentAction
 
   def execute
     return unless active
-    activate('ACTION_SECONDARY_USER')
+    activate(flag: 'ACTION_SECONDARY_USER')
     deactivate(@flag)
   end
 end
