@@ -8,7 +8,9 @@ require 'state/support/data_access_sqlite3'
 
 require 'logger'
 
-# The State Machine
+# The State Machine itself. Comes with a limited set of
+# default actions and can import actions from 'action packs'.
+# Not much use without action packs...
 class StateMachine
   include ActionSupport
   include ActionLoader
@@ -18,11 +20,14 @@ class StateMachine
 
   # Constructor for State Machine
   # @param args Argument Hash
+  # run_mode [Symbol] 'NORMAL' or 'RECOVERY'
+  # log_level [Symbol] e.g. Logger::DEBUG
+  # run_root [Symbol] The root of the run directory created for each run.
+  # Defaults to $HOME/state_machine_root
   def initialize(args = {})
     # State machine control
     @run_mode = args.fetch(:run_mode) { 'NORMAL' }
     @actions = {}
-    @user_actions_dir = args[:user_actions_dir]
     # Logging
     @log = nil
     @logger = nil
@@ -38,19 +43,50 @@ class StateMachine
     create_run_environment
     insert_runtime_properties
     set_logging
+    load_default_actions
+    @logger.info('Starting State Machine')
   end
 
+  # Imports an action pack from a child project via its
+  # export_action_pack method
+  # @param path [String] The absolute path to the action pack
+  def import_action_pack(path)
+    load_action_pack(path) unless path.nil?
+    update_state('ACTION_PACK_LOADED', 1)
+  end
+
+  # Returns the number of actions loaded into the state machine
+  # @return [Integer] No of actions in actions array
+  def number_of_actions
+    @actions.size
+  end
+
+  # Main state machine loop. Will continue to execute until
+  # the SYS_NORMAL_SHUTDOWN or SYS_EMERGENCY_SHUTDOWN action is activated
+  def execute
+    until breakout
+      @actions.each_value do |action|
+        action.execute
+        break if breakout
+      end
+    end
+  end
+
+  # Include an external module from an action pack
+  # @param type [String] Module name from child project
+  # to import into state machine
   def include_module(type)
     if Module.const_defined?(type)
       self.singleton_class.send(:include, Module.const_get(type))
     end
   end
 
+  private
+
   # Setup the logging
   def set_logging
     @log = "#{@run_dir}/log/run.log"
     @logger = set_logger(@log_level, @log)
-    @logger.info('Starting State Machine')
   end
 
   # Add these properties to the properties table in db
@@ -62,21 +98,12 @@ class StateMachine
     insert_property('run_dir', @run_dir)
   end
 
-  # Setup the runtime environment
+  # Setup the runtime environment. Creates the run directories
+  #   and the main control sqlite3 database
   def create_run_environment
     create_run_dirs
     create_db
     insert_states(default_states)
-  end
-
-  # Main state machine loop
-  def execute
-    until breakout
-      @actions.each_value do |action|
-        action.execute
-        break if breakout
-      end
-    end
   end
 
   # Create the control database
@@ -86,15 +113,10 @@ class StateMachine
     create_tables
   end
 
-  # Load the default and user actions if existing
+  # Load the default actions
   def load_actions
     load_default_actions
-    load_user_actions unless @user_actions_dir.nil?
-    update_state('ACTIONS_LOADED', 1)
-  end
-
-  def number_of_actions
-    @actions.size
+    update_state('DEFAULT_ACTIONS_LOADED', 1)
   end
 
   # Create the default runtime directories

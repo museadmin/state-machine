@@ -11,16 +11,19 @@ LOG_FILE = '/tmp/logfile.log'
 TEST_LOG = '/tmp/test.log'
 DB_FILE = '../state-machine-dev/database/state-machine.db'
 
+# Unit tests for the state machine object
 class StateMachineTest < Minitest::Test
+  # Confirm that the version number is set
   def test_that_it_has_a_version_number
     refute_nil ::State::Machine::VERSION
   end
 
+  # Test that the state machine load a test action pack
   def test_execution_of_user_actions
     File.delete(TMP_FILE) if File.file? TMP_FILE
 
-    sm = StateMachine.new(user_actions_dir: USER_ACTIONS_DIR)
-    sm.load_actions
+    sm = StateMachine.new
+    sm.import_action_pack(USER_ACTIONS_DIR)
     sm.execute
 
     assert File.file? TMP_FILE

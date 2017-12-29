@@ -11,6 +11,9 @@ class ParentAction
 
   attr_accessor :flag, :phase, :activation, :payload, :logger
 
+  # Super init called by all action objects
+  # @param sqlite3_db [String] Fully qualified path to db
+  # @param logger [Logger] The logger object
   def initialize(sqlite3_db, logger)
     @sqlite3_db = sqlite3_db
     @logger = logger
@@ -18,20 +21,26 @@ class ParentAction
     insert_states(states) unless states.nil?
   end
 
+  # Child action queries if it is active
   def active
     (@phase == query_run_phase_state || @phase == 'ALL') &&
       query_activation(@flag) == 'ACT'
   end
 
+  # Set an action to active
+  # @param args [Hash] At least the flag of the target action
   def activate(args)
-    update_action_where(args[:phase],
-      args[:payload], 'ACT', args[:flag])
+    args[:activation] = 'ACT'
+    update_action_where(args)
   end
 
+  # Deactivate an action.
+  # @param flag [String] The target action's flag
   def deactivate(flag)
-    update_action_where(nil, nil, 'SKIP', flag)
+    update_action_where(activation: 'SKIP', flag: flag)
   end
 
+  # Convenience method for initiating a shutdown
   def normal_shutdown
     activate(flag: 'SYS_NORMAL_SHUTDOWN')
   end

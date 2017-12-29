@@ -20,15 +20,16 @@ module ActionLoader
   end
 
   # User actions are loaded dynamically from a directory
-  def load_user_actions
+  # @param path [String] Absolute path to the action pack
+  def load_action_pack(path)
     args = { sqlite3_db: @sqlite3_db, run_mode: @run_mode, logger: @logger }
-    Dir["#{@user_actions_dir}/action_*.rb"].each do |file|
+    Dir["#{path}/action_*.rb"].each do |file|
       require file
       file_name = File.basename(file, '.rb')
       name = file_name.upper_camelcase
       action = Object.const_get(name)
-                     .new(args,
-                          file_name.snakecase.upcase)
+                   .new(args,
+                        file_name.snakecase.upcase)
       @actions[file_name.snakecase.upcase] = action
     end
   end
