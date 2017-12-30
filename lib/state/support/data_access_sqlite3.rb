@@ -8,6 +8,7 @@ module DataAccessSqlite3
   # @param sql_query [String] The SQL query to run
   # @return [String] An array of string arrays
   def execute_sql_query(sql_query)
+
     rows = []
     SQLite3::Database.new(@sqlite3_db) do |db|
       db.execute(sql_query) do |row|
@@ -15,6 +16,8 @@ module DataAccessSqlite3
       end
     end
     rows
+  rescue SQLite3::Exception => e
+      raise 'SQL Error in execute_sql_query (' + e.message + ')'
   end
 
   # Execute a sql statement. e.g. an update or insert
@@ -23,6 +26,8 @@ module DataAccessSqlite3
     SQLite3::Database.new(@sqlite3_db) do |db|
       db.execute(sql_statement)
     end
+  rescue SQLite3::Exception => e
+    raise 'SQL Error in execute_sql_statement (' + e.message + ')'
   end
 
   # Create the default tables in the control DB
