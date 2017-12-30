@@ -17,7 +17,10 @@ module DataAccessSqlite3
     end
     rows
   rescue SQLite3::Exception => e
-    @logger.error('SQL Error in execute_sql_query (' + e.message + ')')
+    @logger.error(
+      'SQL Error in execute_sql_query (' + e.message + ')' +
+      'SQL - (' + sql_query + ')'
+    )
     raise 'SQL Error in execute_sql_query (' + e.message + ')'
   end
 
@@ -28,7 +31,10 @@ module DataAccessSqlite3
       db.execute(sql_statement)
     end
   rescue SQLite3::Exception => e
-    @logger.error('SQL Error in execute_sql_statement (' + e.message + ')')
+    @logger.error(
+      'SQL Error in execute_sql_statement (' + e.message + ')' +
+      'SQL - (' + sql_statement + ')'
+    )
     raise 'SQL Error in execute_sql_statement (' + e.message + ')'
   end
 
