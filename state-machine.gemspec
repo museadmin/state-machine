@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'bundler', '1.16.0'
+  spec.add_runtime_dependency 'eventmachine', '~> 1.2.5'
   spec.add_runtime_dependency 'facets', '3.1.0'
   spec.add_runtime_dependency 'minitest', '5.10.1'
   spec.add_runtime_dependency 'rake', '~> 0'
