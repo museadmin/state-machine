@@ -7,6 +7,7 @@ require 'state/support/standing_data'
 require 'state/support/data_access_sqlite3'
 
 require 'logger'
+require 'pathname'
 
 # The State Machine itself. Comes with a limited set of
 # default actions and can import actions from 'action packs'.
@@ -91,7 +92,6 @@ class StateMachine
 
   # Add these properties to the properties table in db
   def insert_runtime_properties
-    insert_property('user_actions_dir', @user_actions_dir)
     insert_property('run_root', @run_root)
     insert_property('user_tag', @user_tag)
     insert_property('run_tag', @run_tag)

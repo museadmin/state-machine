@@ -35,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'minitest', '5.10.1'
   spec.add_runtime_dependency 'rake', '~> 0'
   spec.add_runtime_dependency 'sqlite3', '1.3.13'
+  spec.add_runtime_dependency 'yard', '~> 0.9.12'
 end
