@@ -17,7 +17,8 @@ module DataAccessSqlite3
     end
     rows
   rescue SQLite3::Exception => e
-      raise 'SQL Error in execute_sql_query (' + e.message + ')'
+    @logger.error('SQL Error in execute_sql_query (' + e.message + ')')
+    raise 'SQL Error in execute_sql_query (' + e.message + ')'
   end
 
   # Execute a sql statement. e.g. an update or insert
@@ -27,6 +28,7 @@ module DataAccessSqlite3
       db.execute(sql_statement)
     end
   rescue SQLite3::Exception => e
+    @logger.error('SQL Error in execute_sql_statement (' + e.message + ')')
     raise 'SQL Error in execute_sql_statement (' + e.message + ')'
   end
 
