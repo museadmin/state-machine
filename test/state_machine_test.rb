@@ -11,9 +11,17 @@ ACTION_STATEMENT = 'SECONDARY_USER_ACTION'
 LOG_FILE = '/tmp/logfile.log'
 TEST_LOG = '/tmp/test.log'
 DB_FILE = '../state-machine-dev/database/state-machine.db'
+RESULTS_ROOT = "#{Dir.home}/state_machine_root"
 
 # Unit tests for the state machine object
 class StateMachineTest < Minitest::Test
+
+  # Disable this if debugging a failure...
+  def teardown
+    return unless File.directory?(RESULTS_ROOT)
+    FileUtils.rm_rf("#{RESULTS_ROOT}/.", secure: true)
+  end
+
   # Confirm that the version number is set
   def test_that_it_has_a_version_number
     refute_nil ::State::Machine::VERSION
@@ -33,8 +41,6 @@ class StateMachineTest < Minitest::Test
     assert_equal File.open(TMP_FILE, &:gets), ACTION_STATEMENT
     File.delete(TMP_FILE)
   end
-
-  # TODO: Test for passing a payload to an action
 
   # Wait for a change of run phase in the state machine.
   # Raise error if timeout.
