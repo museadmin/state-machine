@@ -65,6 +65,7 @@ class StateMachine
   # Main state machine loop. Will continue to execute until
   # the SYS_NORMAL_SHUTDOWN or SYS_EMERGENCY_SHUTDOWN action is activated
   def execute
+    Thread.abort_on_exception = true
     Thread.new do
       until breakout
         @actions.each_value do |action|
