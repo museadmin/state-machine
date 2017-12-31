@@ -10,7 +10,7 @@ require 'facets'
 module ActionLoader
   # Default actions are hard coded here
   def load_default_actions
-    args = { sqlite3_db: @sqlite3_db, run_mode: @run_mode, logger: @logger }
+    args = { run_mode: @run_mode, logger: @logger }
     name = 'SYS_CONFIRM_READY_TO_RUN'
     @actions[name] = ActionConfirmReadyToRun.new(args, name)
     name = 'SYS_NORMAL_SHUTDOWN'
@@ -22,7 +22,7 @@ module ActionLoader
   # User actions are loaded dynamically from a directory
   # @param path [String] Absolute path to the action pack
   def load_action_pack(path)
-    args = { sqlite3_db: @sqlite3_db, run_mode: @run_mode, logger: @logger }
+    args = { run_mode: @run_mode, logger: @logger }
     Dir["#{path}/action_*.rb"].each do |file|
       require file
       file_name = File.basename(file, '.rb')

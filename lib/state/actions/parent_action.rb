@@ -12,10 +12,8 @@ class ParentAction
   attr_accessor :flag, :phase, :activation, :payload, :logger
 
   # Super init called by all action objects
-  # @param sqlite3_db [String] Fully qualified path to db
   # @param logger [Logger] The logger object
-  def initialize(sqlite3_db, logger)
-    @sqlite3_db = sqlite3_db
+  def initialize(logger)
     @logger = logger
     save_action(self)
     insert_states(states) unless states.nil?

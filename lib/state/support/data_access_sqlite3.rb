@@ -1,16 +1,21 @@
 # frozen_string_literal: true
 
 require 'sqlite3'
+require 'thread'
 
 # Database access methods
 module DataAccessSqlite3
+
+  @@db_lock = nil
+  @@sqlite3_db = nil
+
   # Execute a generic sql query and return an array of the results
   # @param sql_query [String] The SQL query to run
   # @return [String] An array of string arrays
   def execute_sql_query(sql_query)
 
     rows = []
-    SQLite3::Database.new(@sqlite3_db) do |db|
+    SQLite3::Database.new(@@sqlite3_db) do |db|
       db.execute(sql_query) do |row|
         rows.push row
       end
@@ -27,15 +32,19 @@ module DataAccessSqlite3
   # Execute a sql statement. e.g. an update or insert
   # @param sql_statement [String] The SQL statement to execute
   def execute_sql_statement(sql_statement)
-    SQLite3::Database.new(@sqlite3_db) do |db|
-      db.execute(sql_statement)
-    end
-  rescue SQLite3::Exception => e
-    @logger.error(
-      'SQL Error in execute_sql_statement (' + e.message + ')' +
-      'SQL - (' + sql_statement + ')'
-    )
-    raise 'SQL Error in execute_sql_statement (' + e.message + ')'
+    @@db_lock.synchronize {
+      begin
+        SQLite3::Database.new(@@sqlite3_db) do |db|
+          db.execute(sql_statement)
+        end
+      rescue SQLite3::Exception => e
+        @logger.error(
+          'SQL Error in execute_sql_statement (' + e.message + ')' +
+          'SQL - (' + sql_statement + ')'
+        )
+        raise 'SQL Error in execute_sql_statement (' + e.message + ')'
+      end
+    }
   end
 
   # Create the default tables in the control DB
@@ -84,7 +93,7 @@ module DataAccessSqlite3
 
   # Delete the control DB if existing prior to creating a new one.
   def delete_db
-    File.delete(@sqlite3_db) if File.file? @sqlite3_db
+    File.delete(@@sqlite3_db) if File.file? @@sqlite3_db
   end
 
   # Update the value of a state in the state table

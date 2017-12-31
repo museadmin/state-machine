@@ -8,6 +8,7 @@ require 'state/support/data_access_sqlite3'
 
 require 'logger'
 require 'pathname'
+require 'thread'
 
 # The State Machine itself. Comes with a limited set of
 # default actions and can import actions from 'action packs'.
@@ -34,7 +35,8 @@ class StateMachine
     @logger = nil
     @log_level = args.fetch(:log_level) { Logger::DEBUG }
     # Control DB
-    @sqlite3_db = nil
+    @@sqlite3_db = nil
+    @@db_lock = Mutex.new
     # The run directories
     @run_root = args.fetch(:run_root) { "#{Dir.home}/state_machine_root" }
     @user_tag = args.fetch(:run_root) { 'default' }
@@ -42,8 +44,8 @@ class StateMachine
     @run_dir = nil
 
     create_run_environment
-    insert_runtime_properties
     set_logging
+    insert_runtime_properties
     load_default_actions
     @logger.info('Starting State Machine')
   end
@@ -111,7 +113,6 @@ class StateMachine
 
   # Create the control database
   def create_db
-    # @db_file = @sqlite3_db
     delete_db
     create_tables
   end
@@ -131,6 +132,6 @@ class StateMachine
     FileUtils.mkdir("#{@run_dir}/data")
     FileUtils.mkdir("#{@run_dir}/log")
     FileUtils.chmod_R('u=wrx,go=r', @run_dir)
-    @sqlite3_db = "#{@run_dir}/data/state-machine.db"
+    @@sqlite3_db = "#{@run_dir}/data/state-machine.db"
   end
 end

@@ -15,7 +15,7 @@ class ActionNormalShutdown < ParentAction
       @phase = 'ALL'
       @activation = 'SKIP'
       @payload = 'NULL'
-      super(args[:sqlite3_db], args[:logger])
+      super(args[:logger])
     else
       recover_action(self)
     end

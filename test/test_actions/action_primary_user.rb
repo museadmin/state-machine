@@ -15,7 +15,7 @@ class ActionPrimaryUser < ParentAction
       @phase = 'RUNNING'
       @activation = 'ACT'
       @payload = 'NULL'
-      super(args[:sqlite3_db], args[:logger])
+      super(args[:logger])
     else
       recover_action(self)
     end
