@@ -47,7 +47,6 @@ class StateMachine
     set_logging
     insert_runtime_properties
     load_default_actions
-    @logger.info('Starting State Machine')
   end
 
   # Imports an action pack from a child project via its
@@ -67,6 +66,7 @@ class StateMachine
   # Main state machine loop. Will continue to execute until
   # the SYS_NORMAL_SHUTDOWN or SYS_EMERGENCY_SHUTDOWN action is activated
   def execute
+    @logger.info('Starting State Machine')
     Thread.abort_on_exception = true
     Thread.new do
       until breakout
@@ -115,12 +115,6 @@ class StateMachine
   def create_db
     delete_db
     create_tables
-  end
-
-  # Load the default actions
-  def load_actions
-    load_default_actions
-    update_state('DEFAULT_ACTIONS_LOADED', 1)
   end
 
   # Create the default runtime directories

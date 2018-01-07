@@ -17,6 +17,8 @@ module ActionLoader
     @actions[name] = ActionNormalShutdown.new(args, name)
     name = 'SYS_EMERGENCY_SHUTDOWN'
     @actions[name] = ActionEmergencyShutdown.new(args, name)
+
+    update_state('DEFAULT_ACTIONS_LOADED', 1)
   end
 
   # User actions are loaded dynamically from a directory

@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'eventmachine', '~> 1.2.5'
   spec.add_runtime_dependency 'facets', '3.1.0'
   spec.add_runtime_dependency 'minitest', '5.10.1'
-  spec.add_runtime_dependency 'rake', '~> 0'
+  spec.add_runtime_dependency 'rake', '~> 10.0'
   spec.add_runtime_dependency 'sqlite3', '1.3.13'
   spec.add_runtime_dependency 'yard', '~> 0.9.12'
 end

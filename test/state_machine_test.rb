@@ -42,6 +42,8 @@ class StateMachineTest < Minitest::Test
     File.delete(TMP_FILE)
   end
 
+  # TODO: Test for user tag
+
   # Wait for a change of run phase in the state machine.
   # Raise error if timeout.
   # @param phase [String] Name of phase to wait for
