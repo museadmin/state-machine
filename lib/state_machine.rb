@@ -87,6 +87,13 @@ class StateMachine
     end
   end
 
+  # Query the state table for a particular state
+  def query_status(flag)
+    execute_sql_query(
+      "select status from state where state_flag = '#{flag}';"
+    )[0][0]
+  end
+
   private
 
   # Setup the logging

@@ -73,6 +73,11 @@ module DataAccessSqlite3
       ")".strip)
   end
 
+  def query_payload(flag)
+    execute_sql_query("select payload from state_machine \n" \
+                      "where flag = '#{flag}';")[0][0]
+  end
+
   # Insert a state on behalf of an action
   # @param state [Array] An array of strings
   def insert_state(state)

@@ -19,6 +19,11 @@ class ParentAction
     insert_states(states) unless states.nil?
   end
 
+  # Retrieve the payload from the db for this action
+  def this_payload(flag)
+    query_payload(flag)
+  end
+
   # Child action queries if it is active
   def active
     (@phase == query_run_phase_state || @phase == 'ALL') &&
