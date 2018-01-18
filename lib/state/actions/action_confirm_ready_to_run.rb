@@ -14,7 +14,7 @@ class ActionConfirmReadyToRun < ParentAction
     @flag = flag
     if args[:run_mode] == 'NORMAL'
       @phase = 'ALL'
-      @activation = 'ACT'
+      @activation = ACT
       @payload = 'NULL'
       super(args[:logger])
     else

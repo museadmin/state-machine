@@ -13,7 +13,7 @@ class ActionSecondaryUser < ParentAction
     @flag = flag
     if args[:run_mode] == 'NORMAL'
       @phase = 'RUNNING'
-      @activation = 'SKIP'
+      @activation = SKIP
       @payload = 'NULL'
       super(args[:logger])
     else

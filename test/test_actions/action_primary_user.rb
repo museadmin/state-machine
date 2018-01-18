@@ -13,7 +13,7 @@ class ActionPrimaryUser < ParentAction
     @flag = flag
     if args[:run_mode] == 'NORMAL'
       @phase = 'RUNNING'
-      @activation = 'ACT'
+      @activation = ACT
       @payload = 'NULL'
       super(args[:logger])
     else

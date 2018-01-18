@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'state/support/constants'
 require 'sqlite3'
 require 'thread'
 
@@ -63,7 +64,7 @@ module DataAccessSqlite3
       "   flag CHAR, -- The textual flag. e.g. PROCESS_NORMAL_SHUTDOWN\n" \
       "   phase CHAR DEFAULT 'STARTUP', -- The run phase\n" \
       "   payload CHAR, -- Any payload sent via msg for action\n" \
-      "   activation char DEFAULT 'SKIP' -- The activation. ACT or SKIP\n" \
+      "   activation INTEGER DEFAULT 0 -- The activation. ACT = 1 or SKIP = 0\n" \
       ")".strip)
 
     execute_sql_statement("CREATE TABLE properties\n" \
