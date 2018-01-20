@@ -37,14 +37,14 @@ class ActionConfirmReadyToRun < ParentAction
     ]
   end
 
-  # Any action states that begin their name with INIT_ must set
+  # Any action states that begin their name with BEFORE_ must set
   # status field to 1 before we are considered to be ready to run
   # Enables third party action packs to define actions as a part
   # of the startup phase.
   def initialization_completed
     completed = true
     init = execute_sql_query(
-        "select status from state where state_flag like 'INIT_%'"
+        "select status from state where state_flag like 'BEFORE_%'"
     )
     return completed if init.size.zero?
     init.each do |status|
