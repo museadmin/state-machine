@@ -3,7 +3,6 @@
 require 'state/actions/action_confirm_ready_to_run'
 require 'state/actions/action_normal_shutdown'
 require 'state/actions/action_emergency_shutdown'
-
 require 'facets'
 
 # Load default and user actions

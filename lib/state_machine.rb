@@ -79,6 +79,8 @@ class StateMachine
         end
       end
     end
+    update_state('STOPPED', 1)
+    @logger.info('State Machine Stopped')
   end
 
   # Include an external module from an action pack

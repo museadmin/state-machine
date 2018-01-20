@@ -18,7 +18,7 @@ USER_TAG = 'test_set_of_user_tag'
 class StateMachineTest < Minitest::Test
 
   # Disable this if debugging a failure...
-  TEARDOWN = true
+  TEARDOWN = false
   def teardown
     return unless TEARDOWN && File.directory?(RESULTS_ROOT)
     FileUtils.rm_rf("#{RESULTS_ROOT}/.", secure: true)

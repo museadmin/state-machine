@@ -11,13 +11,14 @@ def default_states
     ['0', 'RECOVERY', 'Recovery mode'],
     # Run Phase
     ['1', 'STARTUP', 'We are starting up'],
-    ['0', 'RUNNING', 'We are running normally']
+    ['0', 'RUNNING', 'We are running normally'],
+    ['0', 'STOPPED', 'Main execution loop has exited']
   ]
 end
 
 # The run phases
 def run_phase_flags
-  %w[STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN]
+  %w[STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN STOPPED]
 end
 
 # The run modes
