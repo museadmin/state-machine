@@ -24,7 +24,7 @@ class ActionConfirmReadyToRun < ParentAction
   def execute
     return unless active
     return unless initialization_completed
-    update_run_phase_state('RUNNING')
+    update_option_group_run_phase_state('RUNNING')
     update_state('READY_TO_RUN', 1)
   end
 

@@ -78,8 +78,8 @@ class StateMachine
           break if breakout
         end
       end
+      update_option_group_run_phase_state('STOPPED')
     end
-    update_state('STOPPED', 1)
     @logger.info('State Machine Stopped')
   end
 

@@ -20,7 +20,7 @@ module ActionSupport
 
   # Updates the current run phase, which can be one of:
   # STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN STOPPED
-  def update_run_phase_state(run_phase)
+  def update_option_group_run_phase_state(run_phase)
     run_phase_flags.each do |flag|
       if flag == run_phase
         update_state(flag, 1)
