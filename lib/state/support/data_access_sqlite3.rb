@@ -61,7 +61,7 @@ module DataAccessSqlite3
     execute_sql_statement("CREATE TABLE state_machine\n" \
       "(\n" \
       "   state_machine_id INTEGER PRIMARY KEY,\n" \
-      "   flag CHAR, -- The textual flag. e.g. PROCESS_NORMAL_SHUTDOWN\n" \
+      "   action CHAR, -- The textual name. e.g. PROCESS_NORMAL_SHUTDOWN\n" \
       "   phase CHAR DEFAULT 'STARTUP', -- The run phase\n" \
       "   payload CHAR, -- Any payload sent via msg for action\n" \
       "   activation INTEGER DEFAULT 0 -- The activation. ACT = 1 or SKIP = 0\n" \
@@ -74,9 +74,9 @@ module DataAccessSqlite3
       ")".strip)
   end
 
-  def query_payload(flag)
+  def query_payload(action)
     execute_sql_query("select payload from state_machine \n" \
-                      "where flag = '#{flag}';")[0][0]
+                      "where action = '#{action}';")[0][0]
   end
 
   # Insert a state on behalf of an action
@@ -161,9 +161,9 @@ module DataAccessSqlite3
   def save_action(action)
     execute_sql_statement(
       "insert into state_machine \n" \
-      "(flag, phase, payload, activation)\n" \
+      "(action, phase, payload, activation)\n" \
       "values\n" \
-      "('#{@flag}',\n" \
+      "('#{@action}',\n" \
       " '#{action.phase}',\n" \
       " '#{action.payload}',\n" \
       " '#{action.activation}');"
@@ -179,7 +179,7 @@ module DataAccessSqlite3
       "phase = '#{action.phase}',\n" \
       " payload = '#{action.payload}',\n" \
       " activation = '#{action.activation}' \n" \
-      "where flag = '#{action.flag}';"
+      "where action = '#{action.action}';"
     )
   end
 
@@ -190,7 +190,7 @@ module DataAccessSqlite3
     ph = args[:phase].nil? ? '' : "phase = '#{args[:phase]}',"
     pa = args[:payload].nil? ? '' : "payload = '#{args[:payload]}',"
     ac = args[:activation].nil? ? '' : " activation = '#{args[:activation]}' "
-    wh = "where flag = '#{args[:flag]}';"
+    wh = "where action = '#{args[:action]}';"
     sql = 'update state_machine set ' + ph + pa + ac + wh
     execute_sql_statement(sql)
   end
@@ -202,7 +202,7 @@ module DataAccessSqlite3
     rows = execute_sql_query(
       "select phase, payload, activation\n" \
       " from state_machine\n" \
-      " where flag = '#{action.flag}'"
+      " where action = '#{action.action}'"
     )
     raise("More than one record found for action (#{action.flag})") if
         rows.size > 1
@@ -212,11 +212,11 @@ module DataAccessSqlite3
   end
 
   # Determine if an action is currently active
-  # @param flag [String] The action flag
-  def query_activation(flag)
+  # @param action [String] The action
+  def query_activation(action)
     execute_sql_query(
       "select activation from state_machine \n" \
-      "where flag = '#{flag}';"
+      "where action = '#{action}';"
     )[0][0]
   end
 

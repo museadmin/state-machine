@@ -12,13 +12,15 @@ LOG_FILE = '/tmp/logfile.log'
 TEST_LOG = '/tmp/test.log'
 DB_FILE = '../state-machine-dev/database/state-machine.db'
 RESULTS_ROOT = "#{Dir.home}/state_machine_root"
+USER_TAG = 'test_set_of_user_tag'
 
 # Unit tests for the state machine object
 class StateMachineTest < Minitest::Test
 
   # Disable this if debugging a failure...
+  TEARDOWN = true
   def teardown
-    return unless File.directory?(RESULTS_ROOT)
+    return unless TEARDOWN && File.directory?(RESULTS_ROOT)
     FileUtils.rm_rf("#{RESULTS_ROOT}/.", secure: true)
   end
 
@@ -35,14 +37,23 @@ class StateMachineTest < Minitest::Test
     sm.import_action_pack(USER_ACTIONS_DIR)
     sm.execute
 
+    # Test actions set shutdown flag so wait for phase change
     wait_for_run_phase('SHUTDOWN', sm, 10)
 
+    # Assert the test action wrote out to file
     assert File.file? TMP_FILE
     assert_equal File.open(TMP_FILE, &:gets), ACTION_STATEMENT
     File.delete(TMP_FILE)
   end
 
-  # TODO: Test for user tag
+  # Test that the user_tag is set correctly
+  def test_set_of_user_tag
+    sm = StateMachine.new(user_tag: USER_TAG)
+    user_tag = sm.query_property('user_tag')
+    run_root = sm.query_property('run_root')
+    assert(user_tag == USER_TAG)
+    assert(Dir.exist?("#{run_root}/#{user_tag}"))
+  end
 
   # Wait for a change of run phase in the state machine.
   # Raise error if timeout.

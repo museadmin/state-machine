@@ -10,7 +10,7 @@ class ParentAction
   include DataAccessSqlite3
   include ActionSupport
 
-  attr_accessor :flag, :phase, :activation, :payload, :logger
+  attr_accessor :action, :phase, :activation, :payload, :logger
 
   # Super init called by all action objects
   # @param logger [Logger] The logger object
@@ -21,14 +21,14 @@ class ParentAction
   end
 
   # Retrieve the payload from the db for this action
-  def this_payload(flag)
-    query_payload(flag)
+  def this_payload(action)
+    query_payload(action)
   end
 
   # Child action queries if it is active
   def active
     (@phase == query_run_phase_state || @phase == 'ALL') &&
-      query_activation(@flag) == ACT
+      query_activation(@action) == ACT
   end
 
   # Set an action to active
@@ -40,12 +40,12 @@ class ParentAction
 
   # Deactivate an action.
   # @param flag [String] The target action's flag
-  def deactivate(flag)
-    update_action_where(activation: SKIP, flag: flag)
+  def deactivate(action)
+    update_action_where(activation: SKIP, action: action)
   end
 
   # Convenience method for initiating a shutdown
   def normal_shutdown
-    activate(flag: 'SYS_NORMAL_SHUTDOWN')
+    activate(action: 'SYS_NORMAL_SHUTDOWN')
   end
 end

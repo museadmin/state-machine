@@ -21,6 +21,8 @@ class StateMachine
 
   attr_reader :run_dir
 
+  # TODO: Method to confirm we have completed shutdown
+
   # Constructor for State Machine
   # @param args Argument Hash
   # run_mode [Symbol] 'NORMAL' or 'RECOVERY'
@@ -40,7 +42,7 @@ class StateMachine
     @@db_lock = Mutex.new
     # The run directories
     @run_root = args.fetch(:run_root) { "#{Dir.home}/state_machine_root" }
-    @user_tag = args.fetch(:run_root) { 'default' }
+    @user_tag = args.fetch(:user_tag) { 'default' }
     @run_tag = (Time.now.to_f * 1000).to_i
     @run_dir = nil
 

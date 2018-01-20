@@ -6,11 +6,9 @@ require 'state/actions/parent_action'
 class ActionNormalShutdown < ParentAction
   # Instantiate the action
   # @param args [Hash] Required parameters for the action
-  # run_mode [Symbol] Either NORMAL or RECOVER
-  # sqlite3_db [Symbol] Path to the main control DB
-  # logger [Symbol] The logger object for logging
-  def initialize(args, flag)
-    @flag = flag
+  # @param action [String] Name of action
+  def initialize(args, action)
+    @action = action
     if args[:run_mode] == 'NORMAL'
       @phase = 'ALL'
       @activation = SKIP
