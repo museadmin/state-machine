@@ -22,7 +22,7 @@ class ActionNormalShutdown < ParentAction
   # Do the work for this action
   def execute
     return unless active
-    update_run_phase_state('SHUTDOWN')
+    update_run_phase_state('STOPPED')
     update_state('READY_TO_RUN', 0)
     update_state('BREAKOUT', 1)
   end

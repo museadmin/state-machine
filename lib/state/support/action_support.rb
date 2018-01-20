@@ -19,7 +19,7 @@ module ActionSupport
   end
 
   # Updates the current run phase, which can be one of:
-  # STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN
+  # STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN STOPPED
   def update_run_phase_state(run_phase)
     run_phase_flags.each do |flag|
       if flag == run_phase
@@ -31,7 +31,7 @@ module ActionSupport
   end
 
   # Returns the current run phase, which can be one of:
-  # STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN
+  # STARTUP RUNNING SHUTDOWN EMERGENCY_SHUTDOWN STOPPED
   def query_run_phase_state
     run_phase_flags.each do |rpf|
       state = query_state(rpf).to_i
