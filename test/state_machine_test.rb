@@ -30,10 +30,11 @@ class StateMachineTest < Minitest::Test
   end
 
   # Test that the state machine load a test action pack
+  # Demonstrate setting debug level
   def test_execution_of_user_actions
     File.delete(TMP_FILE) if File.file? TMP_FILE
 
-    sm = StateMachine.new
+    sm = StateMachine.new(log_level: Logger::DEBUG)
     sm.import_action_pack(USER_ACTIONS_DIR)
     sm.execute
 
@@ -48,7 +49,7 @@ class StateMachineTest < Minitest::Test
 
   # Test that the user_tag is set correctly
   def test_set_of_user_tag
-    sm = StateMachine.new(user_tag: USER_TAG)
+    sm = StateMachine.new(user_tag: USER_TAG, log_level: Logger::DEBUG)
     user_tag = sm.query_property('user_tag')
     run_root = sm.query_property('run_root')
     assert(user_tag == USER_TAG)

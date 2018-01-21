@@ -42,14 +42,11 @@ class ActionConfirmReadyToRun < ParentAction
   # Enables third party action packs to define actions as a part
   # of the startup phase.
   def initialization_completed
-    completed = true
-    init = execute_sql_query(
-        "select status from state where state_flag like 'BEFORE_%'"
-    )
-    return completed if init.size.zero?
-    init.each do |status|
-      completed = false if status[0].to_i.zero?
+    execute_sql_query(
+        "select status from state where state_flag like '%BEFORE_%'"
+    ).each do |status|
+      return false if status[0].to_i.zero?
     end
-    completed
+    true
   end
 end

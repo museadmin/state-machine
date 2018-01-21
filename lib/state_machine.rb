@@ -36,7 +36,7 @@ class StateMachine
     # Logging
     @log = nil
     @logger = nil
-    @log_level = args.fetch(:log_level) { Logger::DEBUG }
+    @log_level = args.fetch(:log_level) { Logger::INFO }
     # Control DB
     @@sqlite3_db = nil
     @@db_lock = Mutex.new

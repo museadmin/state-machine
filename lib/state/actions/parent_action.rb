@@ -27,8 +27,12 @@ class ParentAction
 
   # Child action queries if it is active
   def active
-    (@phase == query_run_phase_state || @phase == 'ALL') &&
+    if (@phase == query_run_phase_state || @phase == 'ALL') &&
       query_activation(@action) == ACT
+      @logger.debug("Action #{action} is active, executing")
+      return true
+    end
+    false
   end
 
   # Set an action to active
