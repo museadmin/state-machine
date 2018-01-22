@@ -6,7 +6,9 @@ require 'eventmachine'
 
 USER_ACTIONS_DIR = './test/test_actions'
 OTHER_ACTIONS = '/some/path'
-TMP_FILE = '/tmp/UserAction'
+TEST_ACTION_RESULT_FILE = '/tmp/UserAction'
+TEST_AFTER_RESULT_FILE =  '/tmp/AfterAction'
+TEST_FINALLY_RESULT_FILE = '/tmp/FinallyAction'
 ACTION_STATEMENT = 'SECONDARY_USER_ACTION'
 LOG_FILE = '/tmp/logfile.log'
 TEST_LOG = '/tmp/test.log'
@@ -32,7 +34,7 @@ class StateMachineTest < Minitest::Test
   # Test that the state machine load a test action pack
   # Demonstrate setting debug level
   def test_execution_of_user_actions
-    File.delete(TMP_FILE) if File.file? TMP_FILE
+    File.delete(TEST_ACTION_RESULT_FILE) if File.file? TEST_ACTION_RESULT_FILE
 
     sm = StateMachine.new(log_level: Logger::DEBUG)
     sm.import_action_pack(USER_ACTIONS_DIR)
@@ -42,10 +44,47 @@ class StateMachineTest < Minitest::Test
     wait_for_run_phase('SHUTDOWN', sm, 10)
 
     # Assert the test action wrote out to file
-    assert File.file? TMP_FILE
-    assert_equal File.open(TMP_FILE, &:gets), ACTION_STATEMENT
-    File.delete(TMP_FILE)
+    assert File.file? TEST_ACTION_RESULT_FILE
+    assert_equal File.open(TEST_ACTION_RESULT_FILE, &:gets), ACTION_STATEMENT
+    File.delete(TEST_ACTION_RESULT_FILE)
   end
+
+  # Test the after action hook functionality
+  def test_execution_of_after_actions
+    File.delete(TEST_ACTION_RESULT_FILE) if File.file? TEST_ACTION_RESULT_FILE
+
+    sm = StateMachine.new(log_level: Logger::DEBUG)
+    sm.import_action_pack(USER_ACTIONS_DIR)
+    sm.execute
+
+    # Test actions set shutdown flag so wait for phase change
+    # wait_for_run_phase('RUNNING', sm, 10)
+    wait_for_run_phase('STOPPED', sm, 10)
+
+    # Assert the after action wrote out to file
+    assert File.file? TEST_AFTER_RESULT_FILE
+    assert_equal(File.open(TEST_AFTER_RESULT_FILE, &:gets), 'ACTION_AFTER_TEST')
+    File.delete(TEST_AFTER_RESULT_FILE)
+  end
+
+  # Test the finally action hook functionality
+  def test_execution_of_finally_actions
+    File.delete(TEST_ACTION_RESULT_FILE) if File.file? TEST_ACTION_RESULT_FILE
+
+    sm = StateMachine.new(log_level: Logger::DEBUG)
+    sm.import_action_pack(USER_ACTIONS_DIR)
+    sm.execute
+
+    # Test actions set shutdown flag so wait for phase change
+    # wait_for_run_phase('RUNNING', sm, 10)
+    wait_for_run_phase('STOPPED', sm, 10)
+
+    # Assert the after action wrote out to file
+    assert File.file? TEST_FINALLY_RESULT_FILE
+    assert_equal(File.open(TEST_FINALLY_RESULT_FILE, &:gets), 'ACTION_FINALLY_TEST')
+    File.delete(TEST_FINALLY_RESULT_FILE)
+  end
+
 
   # Test that the user_tag is set correctly
   def test_set_of_user_tag
@@ -56,6 +95,8 @@ class StateMachineTest < Minitest::Test
     assert(Dir.exist?("#{run_root}/#{user_tag}"))
   end
 
+  # TODO: add tests for after and finally hooks
+  
   # Wait for a change of run phase in the state machine.
   # Raise error if timeout.
   # @param phase [String] Name of phase to wait for
@@ -69,12 +110,16 @@ class StateMachineTest < Minitest::Test
       end
 
       p = EM::PeriodicTimer.new(1) do
-        if state_machine.query_run_phase_state == phase
-          p.cancel
-          t.cancel
-          EM.stop
-          return true
+        begin
+          if state_machine.query_run_phase_state == phase
+            p.cancel
+            t.cancel
+            EM.stop
+            return true
+          end
+        rescue SQLite3::Exception
         end
+
       end
     end
   end

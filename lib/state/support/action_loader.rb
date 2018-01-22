@@ -3,6 +3,7 @@
 require 'state/actions/action_confirm_ready_to_run'
 require 'state/actions/action_normal_shutdown'
 require 'state/actions/action_emergency_shutdown'
+
 require 'facets'
 
 # Load default and user actions
@@ -10,6 +11,7 @@ module ActionLoader
   # Default actions are hard coded here
   def load_default_actions
     args = { run_mode: @run_mode, logger: @logger }
+
     name = 'SYS_CONFIRM_READY_TO_RUN'
     @actions[name] = ActionConfirmReadyToRun.new(args, name)
     name = 'SYS_NORMAL_SHUTDOWN'

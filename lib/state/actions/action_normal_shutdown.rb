@@ -27,13 +27,16 @@ class ActionNormalShutdown < ParentAction
     update_option_group_run_phase_state('SHUTDOWN')
 
     # First take care of any after hooks
+    activate_hooks('AFTER')
+    return unless hooks_completed('AFTER')
 
     # Then take care of any finally hooks
+    activate_hooks'FINALLY'
+    return unless hooks_completed('FINALLY')
 
     # Then stop
-
-    update_state('READY_TO_RUN', 0)
-    update_state('BREAKOUT', 1)
+    update_state('READY_TO_RUN', SKIP)
+    update_state('BREAKOUT', ACT)
   end
 
   private
@@ -45,15 +48,34 @@ class ActionNormalShutdown < ParentAction
   end
 
   # If we have after hooks, activate them
-  def activate_after_hooks
-
+  def activate_hooks(hook)
+    execute_sql_query(
+      "select state_flag from state \n " \
+      "where state_flag like '%#{hook}_%' \n" \
+      "and status = '#{NOT_RUN}';"
+    ).each do |result|
+      activate(action: result[0])
+    end
     define_singleton_method(:activate_after_hooks) {}
   end
 
-  # Check we don't have any un-actioned after hooks
-  def after_hooks_completed
+  # If we have finally hooks, activate them
+  def activate_finally_hooks
+    results = execute_sql_query(
+        "select state_flag from state \n " \
+      "where state_flag like '%FINALLY_%' \n" \
+      "and status = '#{NOT_RUN}';"
+    )
+    results[0].each do |state_flag|
+      activate(action: state_flag)
+    end
+    define_singleton_method(:activate_finally_hooks) {}
+  end
+
+  # Check we don't have any un-actioned hooks
+  def hooks_completed(hook)
     execute_sql_query(
-        "select status from state where state_flag like 'AFTER_%'"
+        "select status from state where state_flag like '%#{hook}_%'"
     ).each do |status|
       return false if status[0].to_i.zero?
     end
