@@ -5,6 +5,6 @@ module State
   # Set the version of the state machine gem
   module Machine
     # The version of the state machine gem
-    VERSION = '0.1.4'
+    VERSION = '0.1.5'
   end
 end

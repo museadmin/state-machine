@@ -7,7 +7,7 @@ http://localhost:9292
 
 Push to server:
 
-gem inabox -o pkg/state-machine-0.1.4.gem
+gem inabox -o pkg/state-machine-0.1.5.gem
 
 # Start the server:
 /Users/atkinsb/RubymineProjects/geminabox/startup
