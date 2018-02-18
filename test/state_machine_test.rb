@@ -37,7 +37,7 @@ class StateMachineTest < Minitest::Test
     File.delete(TEST_ACTION_RESULT_FILE) if File.file? TEST_ACTION_RESULT_FILE
 
     sm = StateMachine.new(log_level: Logger::DEBUG)
-    sm.import_action_pack(USER_ACTIONS_DIR)
+    sm.import_action_pack(path: USER_ACTIONS_DIR, name: 'state_machine')
     sm.execute
 
     # Test actions set shutdown flag so wait for phase change
@@ -54,11 +54,10 @@ class StateMachineTest < Minitest::Test
     File.delete(TEST_ACTION_RESULT_FILE) if File.file? TEST_ACTION_RESULT_FILE
 
     sm = StateMachine.new(log_level: Logger::DEBUG)
-    sm.import_action_pack(USER_ACTIONS_DIR)
+    sm.import_action_pack(path: USER_ACTIONS_DIR, name: 'state_machine')
     sm.execute
 
     # Test actions set shutdown flag so wait for phase change
-    # wait_for_run_phase('RUNNING', sm, 10)
     wait_for_run_phase('STOPPED', sm, 10)
 
     # Assert the after action wrote out to file
@@ -72,7 +71,7 @@ class StateMachineTest < Minitest::Test
     File.delete(TEST_ACTION_RESULT_FILE) if File.file? TEST_ACTION_RESULT_FILE
 
     sm = StateMachine.new(log_level: Logger::DEBUG)
-    sm.import_action_pack(USER_ACTIONS_DIR)
+    sm.import_action_pack(path: USER_ACTIONS_DIR, name: 'state_machine')
     sm.execute
 
     # Test actions set shutdown flag so wait for phase change
@@ -94,8 +93,6 @@ class StateMachineTest < Minitest::Test
     assert(user_tag == USER_TAG)
     assert(Dir.exist?("#{run_root}/#{user_tag}"))
   end
-
-  # TODO: add tests for after and finally hooks
   
   # Wait for a change of run phase in the state machine.
   # Raise error if timeout.
@@ -118,8 +115,8 @@ class StateMachineTest < Minitest::Test
             return true
           end
         rescue SQLite3::Exception
+            x = 0
         end
-
       end
     end
   end

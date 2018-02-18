@@ -22,6 +22,7 @@ class StateMachine
   attr_reader :run_dir
 
   # TODO: Method to confirm we have completed shutdown
+  # should enable simpler test shutdown
 
   # Constructor for State Machine
   # @param args Argument Hash
@@ -45,6 +46,9 @@ class StateMachine
     @user_tag = args.fetch(:user_tag) { 'default' }
     @run_tag = (Time.now.to_f * 1000).to_i
     @run_dir = nil
+    # Dependencies
+    @dependencies = []
+    @action_packs = []
 
     create_run_environment
     set_logging
@@ -53,11 +57,16 @@ class StateMachine
   end
 
   # Imports an action pack from a child project via its
-  # export_action_pack method
-  # @param path [String] The absolute path to the action pack
-  def import_action_pack(path)
-    load_action_pack(path) unless path.nil?
-    update_state('ACTION_PACK_LOADED', 1)
+  # export_action_pack method. Args hold these values:
+  # Path = Absolute path to directory of actions
+  # Name = Name of gem of actions
+  # Dependencies = Any dependencies the action pack might have
+  # @param args [Hash] The action pack metadata
+  def import_action_pack(args)
+    load_action_pack(args[:path]) unless args[:path].nil?
+    register_action_pack(args[:name])
+    merge_dependencies(args[:dependencies]) unless
+        args[:dependencies].nil?
   end
 
   # Returns the number of actions loaded into the state machine
@@ -69,6 +78,7 @@ class StateMachine
   # Main state machine loop. Will continue to execute until
   # the SYS_NORMAL_SHUTDOWN or SYS_EMERGENCY_SHUTDOWN action is activated
   def execute
+    validate
     @logger.info('Starting State Machine')
     Thread.abort_on_exception = true
     Thread.new do
@@ -99,7 +109,27 @@ class StateMachine
     )[0][0]
   end
 
+  # Validate that all dependencies have been satisfied
+  def validate
+    @dependencies.each do |dependency|
+      raise "Unsatisfied dependency #{dependency}." unless
+          @action_packs.include?(dependency)
+    end
+  end
+
   private
+
+  # Merge an array of dependencies. This array lists all dependencies
+  # registered by the loaded action packs
+  # @param dependencies [Array] The dependencies to merge
+  def merge_dependencies(dependencies)
+    (@dependencies << dependencies).flatten!
+  end
+
+  # Register of action packs
+  def register_action_pack(action_pack)
+    @action_packs.push(action_pack)
+  end
 
   # Setup the logging
   def set_logging

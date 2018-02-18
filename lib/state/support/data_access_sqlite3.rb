@@ -50,42 +50,54 @@ module DataAccessSqlite3
 
   # Create the default tables in the control DB
   def create_tables
-    execute_sql_statement("CREATE TABLE state\n" \
-      "(\n"  \
-      "   state_id INTEGER PRIMARY KEY,\n" \
-      "   status INTEGER DEFAULT 1, -- True (1) or False (0)\n" \
-      "   state_flag CHAR NOT NULL, -- Textual flag\n" \
-      "   note CHAR -- Comment explaining what this state is for\n" \
-      ");".strip)
+    execute_sql_statement( <<-EOF
+      CREATE TABLE state (
+       state_id INTEGER PRIMARY KEY, \n
+        status INTEGER DEFAULT 1, -- True (1) or False (0) \n
+         state_flag CHAR NOT NULL, -- Textual flag \n
+          note CHAR -- Comment explaining what this state is for \n
+      );
+      EOF
+    )
 
-    execute_sql_statement("CREATE TABLE state_machine\n" \
-      "(\n" \
-      "   state_machine_id INTEGER PRIMARY KEY,\n" \
-      "   action CHAR, -- The textual name. e.g. PROCESS_NORMAL_SHUTDOWN\n" \
-      "   phase CHAR DEFAULT 'STARTUP', -- The run phase\n" \
-      "   payload CHAR, -- Any payload sent via msg for action\n" \
-      "   activation INTEGER DEFAULT 0 -- The activation. ACT = 1 or SKIP = 0\n" \
-      ")".strip)
+    execute_sql_statement( <<-EOF
+        CREATE TABLE state_machine (
+        state_machine_id INTEGER PRIMARY KEY,\n
+        action CHAR, -- The textual name. e.g. PROCESS_NORMAL_SHUTDOWN\n
+        phase CHAR DEFAULT 'STARTUP', -- The run phase\n
+        payload CHAR, -- Any payload sent via msg for action\n
+        activation INTEGER DEFAULT 0 -- The activation. ACT = 1 or SKIP = 0\n
+      );
+      EOF
+    )
 
-    execute_sql_statement("CREATE TABLE properties\n" \
-      "(\n" \
-      "   property CHAR PRIMARY KEY, -- A property\n" \
-      "   value CHAR -- The value of the property\n" \
-      ")".strip)
+    execute_sql_statement( <<-EOF
+        CREATE TABLE properties (
+        property CHAR PRIMARY KEY, -- A property\n
+        value CHAR -- The value of the property\n
+      );
+      EOF
+    )
   end
 
   def query_payload(action)
-    execute_sql_query("select payload from state_machine \n" \
-                      "where action = '#{action}';")[0][0]
+    execute_sql_query( <<-EOF
+        select payload from state_machine
+         where action = '#{action}';
+      EOF
+    )[0][0]
   end
 
   # Insert a state on behalf of an action
   # @param state [Array] An array of strings
   def insert_state(state)
-    execute_sql_statement("insert into state \n" \
-      "(status, state_flag, note)\n" \
-      "values\n" \
-      "('#{state[0]}', '#{state[1]}', '#{state[2]}');")
+    execute_sql_statement( <<-EOF
+        insert into state
+         (status, state_flag, note)
+          values
+           ('#{state[0]}', '#{state[1]}', '#{state[2]}');
+      EOF
+    )
   end
 
   # Iterate over an array of string arrays and enter
@@ -108,10 +120,11 @@ module DataAccessSqlite3
   def update_state(state_flag, value)
     raise "Unexpected value for state (#{value})" if value != 0 && value != 1
 
-    execute_sql_statement(
-      "update state set \n" \
-      "status = '#{value}' \n" \
-      "where state_flag = '#{state_flag}';"
+    execute_sql_statement( <<-EOF
+        update state set
+         status = '#{value}'
+          where state_flag = '#{state_flag}';
+      EOF
     )
   end
 
@@ -128,20 +141,22 @@ module DataAccessSqlite3
   # @param property [String] Name of the property
   # @param value [Object] The value of the property
   def insert_property(property, value)
-    execute_sql_statement(
-      "insert into properties \n" \
-      "(property, value)\n" \
-      "values\n" \
-      "('#{property}', '#{value}');"
+    execute_sql_statement( <<-EOF
+        insert into properties
+         (property, value)
+          values
+           ('#{property}', '#{value}');
+      EOF
     )
   end
 
   # Return the value fo a property in the properties table
   # @param property [String] The name of the property
   def query_property(property)
-    execute_sql_query(
-      "select value from properties \n" \
-      "where property = '#{property}';"
+    execute_sql_query( <<-EOF
+        select value from properties
+         where property = '#{property}';
+      EOF
     )[0][0]
   end
 
@@ -149,24 +164,26 @@ module DataAccessSqlite3
   # @param property [String] The name of the property
   # @param value [Object] The value to set
   def update_property(property, value)
-    execute_sql_statement(
-      "update properties set \n" \
-      "value = '#{value}' \n" \
-      "where property = '#{property}';"
+    execute_sql_statement( <<-EOF
+        update properties set
+         value = '#{value}'
+          where property = '#{property}';
+      EOF
     )
   end
 
   # Save the state of an action that has just been loaded
   # @param action [Acton] An action object
   def save_action(action)
-    execute_sql_statement(
-      "insert into state_machine \n" \
-      "(action, phase, payload, activation)\n" \
-      "values\n" \
-      "('#{@action}',\n" \
-      " '#{action.phase}',\n" \
-      " '#{action.payload}',\n" \
-      " '#{action.activation}');"
+    execute_sql_statement( <<-EOF
+        insert into state_machine
+         (action, phase, payload, activation)
+          values
+           ('#{@action}',
+            '#{action.phase}',
+             '#{action.payload}',
+              '#{action.activation}');
+      EOF
     )
   end
 
@@ -174,12 +191,13 @@ module DataAccessSqlite3
   # e.g. New payload or activated
   # @param action [Hash] Set of params for update
   def update_action(action)
-    execute_sql_statement(
-      "update state_machine set \n" \
-      "phase = '#{action.phase}',\n" \
-      " payload = '#{action.payload}',\n" \
-      " activation = '#{action.activation}' \n" \
-      "where action = '#{action.action}';"
+    execute_sql_statement( <<-EOF
+        update state_machine set
+         phase = '#{action.phase}',
+          payload = '#{action.payload}',
+           activation = '#{action.activation}'
+            where action = '#{action.action}';
+      EOF
     )
   end
 
@@ -199,10 +217,11 @@ module DataAccessSqlite3
   # Will be used in RECOVER mode
   # @param action [Action] Instance of action trying to recover itself
   def recover_action(action)
-    rows = execute_sql_query(
-      "select phase, payload, activation\n" \
-      " from state_machine\n" \
-      " where action = '#{action.action}'"
+    rows = execute_sql_query( <<-EOF
+      select phase, payload, activation
+        from state_machine
+         where action = '#{action.action}';
+    EOF
     )
     raise("More than one record found for action (#{action.flag})") if
         rows.size > 1
@@ -214,9 +233,10 @@ module DataAccessSqlite3
   # Determine if an action is currently active
   # @param action [String] The action
   def query_activation(action)
-    execute_sql_query(
-      "select activation from state_machine \n" \
-      "where action = '#{action}';"
+    execute_sql_query( <<-EOF
+      select activation from state_machine
+       where action = '#{action}';
+    EOF
     )[0][0]
   end
 
