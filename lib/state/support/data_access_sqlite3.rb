@@ -24,7 +24,7 @@ module DataAccessSqlite3
     rows
   rescue SQLite3::Exception => e
     @logger.error(
-      'SQL Error in execute_sql_query (' + e.message + ')' +
+      'SQL Error in execute_sql_query (' + e.message + ')' \
       'SQL - (' + sql_query + ')'
     )
     raise 'SQL Error in execute_sql_query (' + e.message + ')'
@@ -50,17 +50,17 @@ module DataAccessSqlite3
 
   # Create the default tables in the control DB
   def create_tables
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-CREATE_STATE
       CREATE TABLE state (
        state_id INTEGER PRIMARY KEY, \n
         status INTEGER DEFAULT 1, -- True (1) or False (0) \n
          state_flag CHAR NOT NULL, -- Textual flag \n
           note CHAR -- Comment explaining what this state is for \n
       );
-      EOF
-    )
+    CREATE_STATE
+                         )
 
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-CREATE_SM
         CREATE TABLE state_machine (
         state_machine_id INTEGER PRIMARY KEY,\n
         action CHAR, -- The textual name. e.g. PROCESS_NORMAL_SHUTDOWN\n
@@ -68,36 +68,36 @@ module DataAccessSqlite3
         payload CHAR, -- Any payload sent via msg for action\n
         activation INTEGER DEFAULT 0 -- The activation. ACT = 1 or SKIP = 0\n
       );
-      EOF
-    )
+    CREATE_SM
+                         )
 
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-CREATE_PROPS
         CREATE TABLE properties (
         property CHAR PRIMARY KEY, -- A property\n
         value CHAR -- The value of the property\n
       );
-      EOF
-    )
+    CREATE_PROPS
+                         )
   end
 
   def query_payload(action)
-    execute_sql_query( <<-EOF
+    execute_sql_query(<<-SELECT_PAYLOAD
         select payload from state_machine
          where action = '#{action}';
-      EOF
-    )[0][0]
+    SELECT_PAYLOAD
+                     )[0][0]
   end
 
   # Insert a state on behalf of an action
   # @param state [Array] An array of strings
   def insert_state(state)
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-INSERT_STATE
         insert into state
          (status, state_flag, note)
           values
            ('#{state[0]}', '#{state[1]}', '#{state[2]}');
-      EOF
-    )
+    INSERT_STATE
+                         )
   end
 
   # Iterate over an array of string arrays and enter
@@ -120,12 +120,12 @@ module DataAccessSqlite3
   def update_state(state_flag, value)
     raise "Unexpected value for state (#{value})" if value != 0 && value != 1
 
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-UPDATE_STATE
         update state set
          status = '#{value}'
           where state_flag = '#{state_flag}';
-      EOF
-    )
+    UPDATE_STATE
+                         )
   end
 
   # Return the value of a state
@@ -141,41 +141,41 @@ module DataAccessSqlite3
   # @param property [String] Name of the property
   # @param value [Object] The value of the property
   def insert_property(property, value)
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-INSERT_PROP
         insert into properties
          (property, value)
           values
            ('#{property}', '#{value}');
-      EOF
-    )
+    INSERT_PROP
+                         )
   end
 
   # Return the value fo a property in the properties table
   # @param property [String] The name of the property
   def query_property(property)
-    execute_sql_query( <<-EOF
+    execute_sql_query(<<-QUERY_PROP
         select value from properties
          where property = '#{property}';
-      EOF
-    )[0][0]
+    QUERY_PROP
+                     )[0][0]
   end
 
   # Update a property in the properties table
   # @param property [String] The name of the property
   # @param value [Object] The value to set
   def update_property(property, value)
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-UPDATE_PROP
         update properties set
          value = '#{value}'
           where property = '#{property}';
-      EOF
-    )
+    UPDATE_PROP
+                         )
   end
 
   # Save the state of an action that has just been loaded
   # @param action [Acton] An action object
   def save_action(action)
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-SAVE_ACTION
         insert into state_machine
          (action, phase, payload, activation)
           values
@@ -183,46 +183,34 @@ module DataAccessSqlite3
             '#{action.phase}',
              '#{action.payload}',
               '#{action.activation}');
-      EOF
-    )
+    SAVE_ACTION
+                         )
   end
 
   # Update an action when it has changed state.
   # e.g. New payload or activated
   # @param action [Hash] Set of params for update
   def update_action(action)
-    execute_sql_statement( <<-EOF
+    execute_sql_statement(<<-UPDATE_ACTION
         update state_machine set
          phase = '#{action.phase}',
           payload = '#{action.payload}',
            activation = '#{action.activation}'
             where action = '#{action.action}';
-      EOF
-    )
+    UPDATE_ACTION
+                         )
   end
 
-  # Update an action when it has changed state.
-  # e.g. New payload or activated
-  # @param args [Hash] Optional parameters for update
-  def update_action_where(args)
-    ph = args[:phase].nil? ? '' : "phase = '#{args[:phase]}',"
-    pa = args[:payload].nil? ? '' : "payload = '#{args[:payload]}',"
-    ac = args[:activation].nil? ? '' : " activation = '#{args[:activation]}' "
-    wh = "where action = '#{args[:action]}';"
-    sql = 'update state_machine set ' + ph + pa + ac + wh
-    execute_sql_statement(sql)
-  end
-
-  # Recover an action form the database.
+  # Recover an action from the database.
   # Will be used in RECOVER mode
   # @param action [Action] Instance of action trying to recover itself
   def recover_action(action)
-    rows = execute_sql_query( <<-EOF
+    rows = execute_sql_query(<<-RECOVER
       select phase, payload, activation
         from state_machine
          where action = '#{action.action}';
-    EOF
-    )
+    RECOVER
+                            )
     raise("More than one record found for action (#{action.flag})") if
         rows.size > 1
     action.phase = rows.split(',')[0]
@@ -233,11 +221,36 @@ module DataAccessSqlite3
   # Determine if an action is currently active
   # @param action [String] The action
   def query_activation(action)
-    execute_sql_query( <<-EOF
+    execute_sql_query(<<-QUERY_ACTIVIATION
       select activation from state_machine
        where action = '#{action}';
-    EOF
-    )[0][0]
+    QUERY_ACTIVIATION
+                     )[0][0]
   end
 
+  # Update an action when it has changed state.
+  # e.g. New payload or activated
+  # @param args [Hash] Optional parameters for update
+  def update_action_where(args)
+    ph = update_phase(args)
+    pa = update_payload(args)
+    ac = update_activation(args)
+    wh = "where action = '#{args[:action]}';"
+    sql = 'update state_machine set ' + ph + pa + ac + wh
+    execute_sql_statement(sql)
+  end
+
+  private
+
+  def update_phase(args)
+    args[:phase].nil? ? '' : "phase = '#{args[:phase]}',"
+  end
+
+  def update_payload(args)
+    args[:payload].nil? ? '' : "payload = '#{args[:payload]}',"
+  end
+
+  def update_activation(args)
+    args[:activation].nil? ? '' : " activation = '#{args[:activation]}' "
+  end
 end
