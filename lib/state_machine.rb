@@ -23,6 +23,8 @@ class StateMachine
 
   # TODO: Method to confirm we have completed shutdown
   # should enable simpler test shutdown
+  # TODO: Complete work on adding dependency checks. e.g. One ap
+  # having a dependency on another
 
   # Constructor for State Machine
   # @param args Argument Hash
