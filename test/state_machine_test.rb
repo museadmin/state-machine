@@ -84,7 +84,6 @@ class StateMachineTest < Minitest::Test
     File.delete(TEST_FINALLY_RESULT_FILE)
   end
 
-
   # Test that the user_tag is set correctly
   def test_set_of_user_tag
     sm = StateMachine.new(user_tag: USER_TAG, log_level: Logger::DEBUG)
@@ -93,7 +92,24 @@ class StateMachineTest < Minitest::Test
     assert(user_tag == USER_TAG)
     assert(Dir.exist?("#{run_root}/#{user_tag}"))
   end
-  
+
+  # Test the dependency check
+  # In action pack export:
+  #
+  # Add name of dependent gems to args[:dependencies]
+  # Pass to sm import action pack method
+  #
+  # in sm add any dependencies defined to a dependencies table
+  #
+  # After all packs imported, run a check to see if all deps are installed
+  #
+  # Gem.loaded_specs.each_key do |k|
+  #   puts k
+  # end
+  #
+  # Lists all installed gem names so can read them all into an array and then
+  # iterate over the dependencies, checking if each in array
+
   # Wait for a change of run phase in the state machine.
   # Raise error if timeout.
   # @param phase [String] Name of phase to wait for
