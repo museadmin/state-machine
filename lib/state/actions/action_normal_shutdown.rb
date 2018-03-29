@@ -22,8 +22,6 @@ class ActionNormalShutdown < ParentAction
   # Do the work for this action
   def execute
     return unless active
-    # TODO: Add after and finally hooks. Search for them here and action if found
-    # TODO if found don't break out until they have finished. Timeout??
     update_option_group_run_phase_state('SHUTDOWN')
 
     # First take care of any after hooks
@@ -31,7 +29,7 @@ class ActionNormalShutdown < ParentAction
     return unless hooks_completed('AFTER')
 
     # Then take care of any finally hooks
-    activate_hooks'FINALLY'
+    activate_hooks('FINALLY')
     return unless hooks_completed('FINALLY')
 
     # Then stop
@@ -49,27 +47,14 @@ class ActionNormalShutdown < ParentAction
 
   # If we have after hooks, activate them
   def activate_hooks(hook)
-    execute_sql_query(
-      "select state_flag from state \n " \
-      "where state_flag like '%#{hook}_%' \n" \
-      "and status = '#{NOT_RUN}';"
+    execute_sql_query(<<-END_HOOKS
+        select state_flag from state
+        where state_flag like '%#{hook}_%'
+        and status = '#{NOT_RUN}';
+      END_HOOKS
     ).each do |result|
       activate(action: result[0])
     end
-    define_singleton_method(:activate_after_hooks) {}
-  end
-
-  # If we have finally hooks, activate them
-  def activate_finally_hooks
-    results = execute_sql_query(
-        "select state_flag from state \n " \
-      "where state_flag like '%FINALLY_%' \n" \
-      "and status = '#{NOT_RUN}';"
-    )
-    results[0].each do |state_flag|
-      activate(action: state_flag)
-    end
-    define_singleton_method(:activate_finally_hooks) {}
   end
 
   # Check we don't have any un-actioned hooks
