@@ -43,7 +43,7 @@ class ParentAction
   end
 
   # Deactivate an action.
-  # @param flag [String] The target action's flag
+  # @param action [String] The target action name
   def deactivate(action)
     update_action_where(activation: SKIP, action: action)
   end
